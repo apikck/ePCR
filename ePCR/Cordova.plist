@@ -21,7 +21,9 @@
 	<key>OpenAllWhitelistURLsInWebView</key>
 	<false/>
 	<key>ExternalHosts</key>
-	<array/>
+	<array>
+		<string>*.cloudepcr.com</string>
+	</array>
 	<key>Plugins</key>
 	<dict>
 		<key>Compass</key>
@@ -52,6 +54,10 @@
 		<string>CDVSplashScreen</string>
 		<key>Battery</key>
 		<string>CDVBattery</string>
+		<key>emailComposer</key>
+		<string>EmailComposer</string>
+		<key>printPlugin</key>
+		<string>PrintPlugin</string>
 	</dict>
 </dict>
 </plist>

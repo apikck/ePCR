@@ -38,6 +38,14 @@
 		E9CECC5515440962003A4F6B /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E9CECC5415440962003A4F6B /* MainViewController.m */; };
 		E9CECC5715440962003A4F6B /* MainViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E9CECC5615440962003A4F6B /* MainViewController.xib */; };
 		E9CECC5B15440962003A4F6B /* verify.sh in Resources */ = {isa = PBXBuildFile; fileRef = E9CECC5A15440962003A4F6B /* verify.sh */; };
+		E9CECC7315440E42003A4F6B /* EmailComposer.m in Sources */ = {isa = PBXBuildFile; fileRef = E9CECC6915440E42003A4F6B /* EmailComposer.m */; };
+		E9CECC7715440E42003A4F6B /* PrintPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = E9CECC7215440E42003A4F6B /* PrintPlugin.m */; };
+		E9CECC7915440FE4003A4F6B /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = E9CECC7815440FE4003A4F6B /* Default.png */; };
+		E9CECC7B15440FEE003A4F6B /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E9CECC7A15440FEE003A4F6B /* Default@2x.png */; };
+		E9CECC7D15441014003A4F6B /* Default-Landscape~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = E9CECC7C15441014003A4F6B /* Default-Landscape~ipad.png */; };
+		E9CECC7F15441019003A4F6B /* Default-Portrait~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = E9CECC7E15441019003A4F6B /* Default-Portrait~ipad.png */; };
+		E9CECC8315442541003A4F6B /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9CECC8215442541003A4F6B /* MessageUI.framework */; };
+		E9CECC85154427DE003A4F6B /* www in Resources */ = {isa = PBXBuildFile; fileRef = E9CECC84154427DE003A4F6B /* www */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -55,10 +63,10 @@
 		E9CECC1D15440962003A4F6B /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		E9CECC1F15440962003A4F6B /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		E9CECC2115440962003A4F6B /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
-		E9CECC2515440962003A4F6B /* ePCR-Info.plist */ = {isa = PBXFileReference; path = "ePCR-Info.plist"; sourceTree = "<group>"; };
+		E9CECC2515440962003A4F6B /* ePCR-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ePCR-Info.plist"; sourceTree = "<group>"; };
 		E9CECC2715440962003A4F6B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		E9CECC2915440962003A4F6B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		E9CECC2B15440962003A4F6B /* ePCR-Prefix.pch */ = {isa = PBXFileReference; path = "ePCR-Prefix.pch"; sourceTree = "<group>"; };
+		E9CECC2B15440962003A4F6B /* ePCR-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ePCR-Prefix.pch"; sourceTree = "<group>"; };
 		E9CECC2C15440962003A4F6B /* Cordova.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cordova.framework; path = /Users/Shared/Cordova/Frameworks/Cordova.framework; sourceTree = "<absolute>"; };
 		E9CECC3115440962003A4F6B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Resources/en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		E9CECC3515440962003A4F6B /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = Resources/es.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -71,13 +79,23 @@
 		E9CECC4915440962003A4F6B /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default@2x.png"; path = "Resources/splash/Default@2x.png"; sourceTree = "<group>"; };
 		E9CECC4B15440962003A4F6B /* Capture.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = Capture.bundle; path = Resources/Capture.bundle; sourceTree = "<group>"; };
 		E9CECC4D15440962003A4F6B /* Cordova.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Cordova.plist; sourceTree = "<group>"; };
-		E9CECC5015440962003A4F6B /* AppDelegate.h */ = {isa = PBXFileReference; name = AppDelegate.h; path = Classes/AppDelegate.h; sourceTree = "<group>"; };
+		E9CECC5015440962003A4F6B /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Classes/AppDelegate.h; sourceTree = "<group>"; };
 		E9CECC5115440962003A4F6B /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = Classes/AppDelegate.m; sourceTree = "<group>"; };
-		E9CECC5315440962003A4F6B /* MainViewController.h */ = {isa = PBXFileReference; name = MainViewController.h; path = Classes/MainViewController.h; sourceTree = "<group>"; };
+		E9CECC5315440962003A4F6B /* MainViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MainViewController.h; path = Classes/MainViewController.h; sourceTree = "<group>"; };
 		E9CECC5415440962003A4F6B /* MainViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = MainViewController.m; path = Classes/MainViewController.m; sourceTree = "<group>"; };
 		E9CECC5615440962003A4F6B /* MainViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = MainViewController.xib; path = Classes/MainViewController.xib; sourceTree = "<group>"; };
-		E9CECC5915440962003A4F6B /* README */ = {isa = PBXFileReference; name = README; path = Plugins/README; sourceTree = "<group>"; };
+		E9CECC5915440962003A4F6B /* README */ = {isa = PBXFileReference; lastKnownFileType = text; name = README; path = Plugins/README; sourceTree = "<group>"; };
 		E9CECC5A15440962003A4F6B /* verify.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = verify.sh; sourceTree = "<group>"; };
+		E9CECC6815440E42003A4F6B /* EmailComposer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EmailComposer.h; sourceTree = "<group>"; };
+		E9CECC6915440E42003A4F6B /* EmailComposer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EmailComposer.m; sourceTree = "<group>"; };
+		E9CECC7115440E42003A4F6B /* PrintPlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrintPlugin.h; sourceTree = "<group>"; };
+		E9CECC7215440E42003A4F6B /* PrintPlugin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrintPlugin.m; sourceTree = "<group>"; };
+		E9CECC7815440FE4003A4F6B /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
+		E9CECC7A15440FEE003A4F6B /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
+		E9CECC7C15441014003A4F6B /* Default-Landscape~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Landscape~ipad.png"; sourceTree = "<group>"; };
+		E9CECC7E15441019003A4F6B /* Default-Portrait~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait~ipad.png"; sourceTree = "<group>"; };
+		E9CECC8215442541003A4F6B /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
+		E9CECC84154427DE003A4F6B /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; path = www; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,6 +103,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E9CECC8315442541003A4F6B /* MessageUI.framework in Frameworks */,
 				E9CECC0A15440961003A4F6B /* Foundation.framework in Frameworks */,
 				E9CECC0C15440961003A4F6B /* UIKit.framework in Frameworks */,
 				E9CECC0E15440961003A4F6B /* CoreGraphics.framework in Frameworks */,
@@ -115,6 +134,12 @@
 		E9CECBF715440961003A4F6B = {
 			isa = PBXGroup;
 			children = (
+				E9CECC84154427DE003A4F6B /* www */,
+				E9CECC8215442541003A4F6B /* MessageUI.framework */,
+				E9CECC7E15441019003A4F6B /* Default-Portrait~ipad.png */,
+				E9CECC7C15441014003A4F6B /* Default-Landscape~ipad.png */,
+				E9CECC7A15440FEE003A4F6B /* Default@2x.png */,
+				E9CECC7815440FE4003A4F6B /* Default.png */,
 				E9CECC2315440962003A4F6B /* ePCR */,
 				E9CECC0815440961003A4F6B /* Frameworks */,
 				E9CECC0615440961003A4F6B /* Products */,
@@ -254,9 +279,31 @@
 		E9CECC5815440962003A4F6B /* Plugins */ = {
 			isa = PBXGroup;
 			children = (
+				E9CECC6715440E42003A4F6B /* EmailComposer */,
+				E9CECC7015440E42003A4F6B /* PrintPlugin */,
 				E9CECC5915440962003A4F6B /* README */,
 			);
 			name = Plugins;
+			sourceTree = "<group>";
+		};
+		E9CECC6715440E42003A4F6B /* EmailComposer */ = {
+			isa = PBXGroup;
+			children = (
+				E9CECC6815440E42003A4F6B /* EmailComposer.h */,
+				E9CECC6915440E42003A4F6B /* EmailComposer.m */,
+			);
+			name = EmailComposer;
+			path = Plugins/EmailComposer;
+			sourceTree = "<group>";
+		};
+		E9CECC7015440E42003A4F6B /* PrintPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				E9CECC7115440E42003A4F6B /* PrintPlugin.h */,
+				E9CECC7215440E42003A4F6B /* PrintPlugin.m */,
+			);
+			name = PrintPlugin;
+			path = Plugins/PrintPlugin;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -329,6 +376,11 @@
 				E9CECC4E15440962003A4F6B /* Cordova.plist in Resources */,
 				E9CECC5715440962003A4F6B /* MainViewController.xib in Resources */,
 				E9CECC5B15440962003A4F6B /* verify.sh in Resources */,
+				E9CECC7915440FE4003A4F6B /* Default.png in Resources */,
+				E9CECC7B15440FEE003A4F6B /* Default@2x.png in Resources */,
+				E9CECC7D15441014003A4F6B /* Default-Landscape~ipad.png in Resources */,
+				E9CECC7F15441019003A4F6B /* Default-Portrait~ipad.png in Resources */,
+				E9CECC85154427DE003A4F6B /* www in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -358,6 +410,8 @@
 				E9CECC2A15440962003A4F6B /* main.m in Sources */,
 				E9CECC5215440962003A4F6B /* AppDelegate.m in Sources */,
 				E9CECC5515440962003A4F6B /* MainViewController.m in Sources */,
+				E9CECC7315440E42003A4F6B /* EmailComposer.m in Sources */,
+				E9CECC7715440E42003A4F6B /* PrintPlugin.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -422,8 +476,8 @@
 					armv6,
 					"$(ARCHS_STANDARD_32_BIT)",
 				);
-				CLANG_ENABLE_OBJC_ARC = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CLANG_ENABLE_OBJC_ARC = NO;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Rian Buchanan (5M45SZ792F)";
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -438,6 +492,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 3.0;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "4115264F-4E33-469F-9BF4-1FFEEBDB610C";
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -450,8 +505,8 @@
 					armv6,
 					"$(ARCHS_STANDARD_32_BIT)",
 				);
-				CLANG_ENABLE_OBJC_ARC = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CLANG_ENABLE_OBJC_ARC = NO;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				COPY_PHASE_STRIP = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
@@ -459,6 +514,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 3.0;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -468,9 +524,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer: Rian Buchanan (5M45SZ792F)";
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = /Users/Shared/Cordova/Frameworks;
 				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ePCR/ePCR-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -485,10 +543,11 @@
 					AVFoundation,
 					"-weak_framework",
 					CoreMedia,
-					"-weak_library",
+					"-weak-lSystem",
 					/usr/lib/libSystem.B.dylib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "4115264F-4E33-469F-9BF4-1FFEEBDB610C";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
@@ -498,9 +557,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = /Users/Shared/Cordova/Frameworks;
+				GCC_OPTIMIZATION_LEVEL = s;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ePCR/ePCR-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -515,10 +576,11 @@
 					AVFoundation,
 					"-weak_framework",
 					CoreMedia,
-					"-weak_library",
+					"-weak-lSystem",
 					/usr/lib/libSystem.B.dylib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				WRAPPER_EXTENSION = app;
@@ -544,6 +606,7 @@
 				E9CECC6015440962003A4F6B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
