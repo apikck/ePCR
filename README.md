@@ -4,7 +4,8 @@ ePCR
 ePCR is a mobile application designed to create Patient Care Reports
 
 ePCR is a professional application for iPhone to help EMS workers with their Patient Care Reports. 
-When the report is complete, it can be printed on AirPrint compatible printers or be e-mailed 
+When the report is complete, it can be printed on AirPrint compatible printers or be e-mailed.
+More infos and screenshots at http://epcr.wordpress.com 
 
 Features include: 
 ====
