@@ -1,0 +1,46 @@
+div#jqt > * {
+	display: none;
+}
+
+div #export_page {
+	display: inline;
+}
+
+div #export_page a{
+	display: none;
+}
+
+div #export_page h1{
+	display: none;
+}
+
+div #export_page p#header{
+	font-size : 12px;
+}
+
+div #export_page .logo{
+	margin-right: 20px;
+}
+
+div #export_page hr {
+	border: 2px solid #000;
+	margin-bottom: 10px;
+}
+
+#vitals_sum table, #procedures_sum table:not(.singleEntry){
+	text-align: center;
+	color: black;
+	border: 1px solid #000;
+}
+
+div #export_page table .head {
+	font: bold 14px Helvetica;
+}
+
+div #export_page table .answer {
+	font: bold 15px Helvetica;
+}
+
+div #export_page table .question {
+	font: normal 15px Helvetica;
+}

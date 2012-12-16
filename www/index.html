@@ -1,0 +1,3717 @@
+<html>
+	<head>
+		<title>ePCR</title>
+		<meta charset="UTF-8" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no">
+		<link rel="apple-touch-startup-image" href="epcr-startup-web.png" />
+		<link type="text/css" rel="stylesheet" media="screen" href="jqtouch/jqtouch.css">
+		<link type="text/css" rel="stylesheet" media="screen" href="themes/jqt/theme.css">
+		<link type="text/css" rel="stylesheet" media="screen" href="epcr.css">
+		<link type="text/css" rel="stylesheet" media="print" href="print.css">
+		<link type="text/css" rel="stylesheet" media="screen" href="vehicles.css">
+		<link type="text/css" rel="stylesheet" media="screen" href="mobiscroll-1.5.3.min.css">
+		<script type="text/javascript" src="jquery-1.7.1.min.js"></script> 
+		<script type="text/javascript" src="jqtouch/jqtouch.js"></script>
+		<script type="text/javascript" charset="utf-8" src="mobiscroll-1.5.3.min.js"></script>
+		<script type="text/javascript" src="canvas2image.js"></script>
+		<script type="text/javascript" src="base64.js"></script>
+		<script type="text/javascript" charset="utf-8" src="cordova-1.6.1.js"></script>
+        <script type="text/javascript" charset="utf-8" src="PrintPlugin.js"></script>
+        <script type="text/javascript" charset="utf-8" src="EmailComposer.js"></script>
+		<script type="text/javascript" src="DBfunctions.js"></script>
+		<script type="text/javascript" src="raphael/raphael-min.js"></script>
+		<script type="text/javascript"  src="raphael/popup.js"></script>
+		<script type="text/javascript"  src="raphael/vitals-grid.js"></script>
+		<script src="json2.min.js"></script>
+		<script src="iscroll.js" type="application/javascript" charset="utf-8"></script>
+		<script type="text/javascript" src="uuid.core.js"></script>
+		<script type="text/javascript" src="md5.js"></script>
+		<script type="text/javascript" src="epcr.js"></script>
+	</head>
+	<body onload="onBodyLoad()">
+		<div id="jqt" class="splitscreen">
+			<div id="home" class="current" section="aside">
+				<div id="homeMenu" style="display:none">
+					<div class="toolbar">
+					  <h1>ePCR</h1>
+					  <a class="button flip" href="#settings" id="settings_link">Settings</a>
+					  <a class="button left flip" href="#about">About</a>
+					</div>
+					<ul class="rounded">
+						<li class="arrow" id="newPatientLink"><a class="pop" href="#patient" ontouchend="resetCurrentPatient()">New Patient</a></li>
+						<li class="arrow" id="patientsListLink"><a class="pop" href="#patients_list" ontouchend="resetCurrentPatient()">Patients List</a><small id="patientscounter" class="counter">0</small></li>
+					</ul>
+					<ul class="individual">
+							<li class="arrow" id="codeLink">
+								<a href="#code" class="pop" ontouchend="resetCurrentPatient()">CODE</a>
+							</li>
+							<li class="arrow li_right" id="synchronizeLink">
+								<a href="#sync" onclick="exportPatients('')">Synchronize</a>
+							</li>
+					</ul>
+				</div>
+				<div style="display:none;" id="patientPageSide">
+					<hr class="horiz_bar">
+					<br>
+					<ul class="edgetoedge">
+						<li class="sep" id="widgetPatientName">Patient</li>
+					</ul>
+					<ul class="individual">
+						<li class="arrow"><a href="#patient_info">Patient Info</a></li>
+						<li class="arrow li_right"><a href="#vitals_list">Vitals</a></li>
+						<li class="arrow"><a href="#chief_complaint">Chief Complaint</a></li>
+						<li class="arrow li_right"><a href="#patient_hx">Patient Hx</a></li>
+						<li class="arrow"><a href="#exam">Exam</a></li>
+						<li class="arrow li_right"><a href="#procedures">Procedures</a></li>
+						<li class="arrow"><a href="#signatures">Signatures</a></li>
+						<li class="arrow li_right"><a href="#call_info">Call Info</a></li>
+						<li class="arrow"><a href="#narrative_list">Narrative</a></li>
+						<li class="arrow li_right"><a href="#code_list">Code Summary</a></li>
+						<li class="arrow"><a href="#export">Export</a></li>
+					</ul>
+					<a href="#code" style="margin: 10px;" class="redButton pop">Code</a>
+				</div>
+			</div>
+			<form id="passcode">
+				<div class="toolbar">
+					<h1>Enter Password to unlock</h1>
+				</div>
+				<div class="bar" id="NIPbar">
+					<input type="radio" name="enter_link" id="enter_link" title="Enter Password" ontouchend="showEnterPIN()" checked />
+					<input type="radio" name="change_link" id="change_link" title="Change Password" ontouchend="showChangePIN()"/>
+				</div>
+				<br />
+				<br />
+				<p><img id="lockpad" src="images/img/padlock-icon-locked.gif"/></p>
+				<br />
+				<div id="divEnterPIN">
+					<ul class="rounded">
+						<li>
+							<input placeholder="Enter Password" type="password" name="pin" id="pin" maxlength="10"/>
+						</li>
+						<li id="wrongPINenter" style="display:none">
+							<span class="label">Wrong Password, try again</span>
+						</li>
+					</ul>
+					<a ontouchend="validPIN()" id="validatePIN" name="validatePIN" class="passButton greenButton pop">OK</a>	
+				</div>
+				<div id="divChangePIN" style="display:none">
+					<ul class="rounded">
+						<li id="defaultPIN" style="display:none">
+							<span class="label">By default, your Password is 0000. Please change it</span>
+						</li>
+						<li>
+							<input placeholder="Enter current Password" type="password" name="old_pin" id="old_pin" maxlength="10"/>
+						</li>
+						<li id="wrongPINchange" style="display:none">
+							<span class="label">Wrong Password, try again</span>
+						</li>
+						<li>
+							<input placeholder="Enter new Password" type="password" name="new_in" id="new_pin" maxlength="10"/>
+						</li>
+						<li>
+							<input placeholder="Confirm Password" type="password" name="confirm_in" id="confirm_pin" maxlength="10"/>
+						</li>
+						<li id="wrongPINconfirm" style="display:none">
+							<span class="label">Confirm Password not matching</span>
+						</li>
+					</ul>
+					<a ontouchend="resetPIN()" id="resetPIN" name="resetPIN" class="passButton greenButton pop">OK</a>
+				</div>
+			</form>
+			<div id="patient">
+				<div class="toolbar">
+					<h1>New Patient</h1>
+					<a class="backSubmit" ontouchend="goToPage('#patients_list', 'flip', true)">Patients</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul id="patientPage" class="individual">
+							<li class="arrow" id="patientInfoLink"><a href="#patient_info">Patient Info</a></li>
+							<li class="arrow li_right" id="vitalsLink"><a href="#vitals_list">Vitals</a></li>
+							<li class="arrow" id="chiefComplaintLink"><a href="#chief_complaint">Chief Complaint</a></li>
+							<li class="arrow li_right" id="patientHxLink"><a href="#patient_hx">Patient Hx</a></li>
+							<li class="arrow" id="examLink"><a href="#exam">Exam</a></li>
+							<li class="arrow li_right" id="proceduresLink"><a href="#procedures">Procedures</a></li>
+							<li class="arrow" id="signatureLink"><a href="#signatures">Signatures</a></li>
+							<li class="arrow li_right" id="callInfoLink"><a href="#call_info">Call Info</a></li>
+							<li class="arrow" id="narrativeLink"><a href="#narrative_list">Narrative</a></li>
+							<li class="arrow li_right" id="codeSummaryLink"><a href="#code_list">Code Summary</a></li>
+							<li class="arrow" id="exportLink"><a href="#export">Export</a></li>
+							<!--<li class="arrow li_right" id="savePtAsLink"><a href="#patient" class="pop" ontouchend="exportTables()">Save Pt as</a></li>-->
+						</ul>
+						<a href="#code" id="codeButton" style="margin: 10px;" class="redButton pop">Code</a>
+					</div>
+				</div>
+			</div>	
+			<form id="patient_info">
+				<div class="toolbar">
+					<h1>Patient Info</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label">Patient Contact?</span>
+								<input type="checkbox" class="onoff yes_no" id="patient_contact_checkbox" name="patient_contact_checkbox" ontouchend="element_Show_Hide(this, '#div_patient_contact')">
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li class="sep">Identity</li>
+							<li>
+								<span class="label margin10pxr" section="main">Last Name</span>
+								<input placeholder="Last Name" type="text" name="last_name" id="last_name" required="required"/>
+							</li>
+							<li>
+								<span class="label margin10pxr" section="main">First Name</span>
+								<input placeholder="First Name" type="text" name="first_name" id="first_name" required="required"/>
+							</li>
+							<li>
+								<span class="label">DOB is known</span>
+								<input type="checkbox" class="onoff yes_no" id="get_DOB" checked="checked" ontouchend="element_Show_Hide(this, '#li_date_of_birth')">
+							</li>
+							<li id="li_date_of_birth">
+								<input type="text" name="date_of_birth" id="date_of_birth" class="mobiscroll" onBlur="calculateAge()"/>
+								<label class="margin10px" id="patientAge"></label>
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<span class="label">Gender</span>
+								<input type="checkbox" class="longCheck gender" id="gender" name="gender" checked="checked">
+							</li>
+							<li>
+								<div>
+									<span class="label margin10pxr" section="main">Weight</span>
+									<input placeholder="Weight" type="number" class="small_input_std" name="weight" id="weight" />
+								</div>
+								<input type="checkbox" class="onoff weight_unit" id="weight_unit" name="weight_unit" ontouchend="calculateWeight()">
+							</li>
+						</ul>
+						<ul class="rounded">				
+							<li class="sep">Address</li>
+							<li>
+								<span class="label margin10pxr" section="main">Street</span>
+								<input placeholder="Street" type="text" name="street" id="street" />
+							</li>
+							<li>
+								<span class="label margin10pxr" section="main">City</span>
+								<input placeholder="City" type="text" name="city" id="city" />
+							</li>
+							<li>
+								<span class="label margin10pxr" section="main">Province</span>
+								<input placeholder="Province" type="text" name="province" id="province" />
+							</li>
+						</ul>
+						<div id="div_patient_contact">
+							<ul class="rounded">
+								<li class="sep">Phone Numbers</li>
+								<li>
+									<span class="label margin10pxr" section="main">Home Phone</span>
+									<input placeholder="Home Phone Number" type="tel" name="home_phone" id="home_phone" />
+								</li>
+								<li>
+									<span class="label margin10pxr" section="main">Work Phone</span>
+									<input placeholder="Work Phone Number" type="tel" name="work_phone" id="work_phone" />
+								</li>
+								<li>
+									<span class="label margin10pxr" section="main">Cell Phone</span>
+									<input placeholder="Cell Phone Number" type="tel" name="cell_phone" id="cell_phone" />
+								</li>
+								<li>
+									<span class="label margin10pxr" section="main">Msg Phone</span>
+									<input placeholder="Message Phone Number" type="tel" name="message_phone" id="message_phone" />
+								</li>
+							</ul>
+							<ul class="rounded">
+								<li>
+									<span class="label margin10pxr" section="main">Insurance</span>
+									<input placeholder="Insurance" type="text" name="insurance" id="insurance" />
+								</li>
+								<li>
+									<span class="label margin10pxr" section="main">Health Care</span>
+									<input placeholder="Health Care Number" type="text" name="mrn" id="mrn" />
+								</li>
+								<li>
+									<span class="label margin10pxr" section="main">Next of Kin</span>
+									<input placeholder="Next of Kin" type="text" name="next_of_kin" id="next_of_kin" />
+								</li>
+								<li>
+									<span class="label margin10pxr" section="main">NoK Phone</span>
+									<input placeholder="Next of Kin Phone Number" type="tel" name="next_of_kin_phone" id="next_of_kin_phone" />
+								</li>
+							</ul>
+						</div>
+						<ul class="rounded">
+							<li>
+								<span class="label">Patient</span>
+								<div class="left">
+									<input placeholder="#" type="number" class="small_input_std" name="pt_number" id="pt_number" />
+								</div>
+								<span class="label">of</span>
+								<div>
+									<input placeholder="#" type="number" class="small_input_std" name="of_number" id="of_number" />
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</form>
+			<div id="vitals_list">
+				<div class="toolbar">
+					<h1>Vitals</h1>
+					<a class="back" href="#">Patient</a>
+					<a class="add slideup" href="#vitals" ontouchend="resetCurrentRecord()">+</a>
+					<a href="#chart" class="nextToCancel button brightblue" name="vitalsChart" id="vitalsChart">Charts</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="edgetoedge">
+							<li class="sep">Vitals Records</li>
+						</ul>
+						<ul class="edgetoedge" id="vitals_sorted">
+							<li id="vitalsTemplate" class="entry list_sorted" style="display:none" >
+								<img class="unlock_line" src="images/img/disabled.png" />
+								<span class="vitals_time">last</span>
+								<span class="delete" style="display:none">Delete</span>	
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<form id="vitals">
+				<div class="toolbar">
+				  <h1>Vitals</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="content s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<div div class="left_item">
+									<span class="label margin10pxr" section="main">HR</span>
+									<input placeholder="HR" type="tel" id="hr" class="small_input" name="hr">
+									<span class="label margin5px">bpm</span>
+								</div>
+								<div class="right_item">
+									<input placeholder="Sys" type="tel" id="sys" class="small_input" name="sys">
+									<span class="label margin5px">/&nbsp;</span>
+									<input placeholder="Dia" type="tel" id="dia" class="small_input" name="dia">
+								</div>
+							</li>
+							<li>
+								<span class="label">FiO2</span>
+								<select class="margin5px" name="fio2" id="fio2">
+									<option value="0">Room Air</option>
+									<option value="1">1 lpm</option>
+									<option value="2">2 lpm</option>
+									<option value="3">3 lpm</option>
+									<option value="4">4 lpm</option>
+									<option value="5">5 lpm</option>
+									<option value="6">6 lpm</option>
+									<option value="7">10 lpm</option>
+									<option value="8">12 lpm</option>
+									<option value="9">15 lpm</option>
+								</select>
+							</li>
+							<li>
+								<div class="left_item">
+									<span class="label margin10pxr" section="main">SpO2</span>
+									<input placeholder="SpO2" type="tel" id="spo2" class="small_input" name="sp02">
+									<span class="label margin5px">%</span>
+								</div>
+								<div class="right_item">
+									<input placeholder="Resp" type="tel" id="resp" class="small_input" name="resp">
+									<span class="label margin5px">/ min</span>
+								</div>
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<span class="label margin10pxr" section="main">L of C</span>
+								<select name="level_of_c" id="level_of_c">
+									<option value="0">Level of Consciousness</option>
+									<option value="1">Alert and Oriented x4</option>
+									<option value="2">Alert and Oriented x3</option>
+									<option value="3">Alert and Oriented x2</option>
+									<option value="4">Alert and Oriented x1</option>
+									<option value="5">Alert and Confused</option>
+									<option value="6">Responds to Verbal Stimuli</option>
+									<option value="7">Responds to Painful Stimuli</option>
+									<option value="8">Unresponsive</option>
+								</select>
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li class="sep">Eyes</li>
+							<li>
+								<div class="right_item">
+									<input placeholder="Size" type="tel" id="left_eye" class="very_small_input" name="left_eye">
+									<span class="label margin5px">mm</span>
+								</div>
+								<input type="checkbox" class="longCheck perrl_not_perrl" checked="checked" id="perrl" name="perrl" ontouchend="toggle_perrl()"/>
+							</li>
+							<li id="li_perrl">
+								<div class="right_item">
+									<input placeholder="R" type="tel" id="right_eye" class="very_small_input" name="right_eye">
+									<span class="label margin5px">mm</span>
+								</div>
+									<input type="checkbox" class="longCheck responsive_unresponsive" checked="checked" id="eye_response" name="eye_response"/>
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li class="sep">Other Vitals</li>
+							<li>					
+								<div class="left_item">
+									<span class="label margin10pxr" section="main">BGL</span>
+									<input placeholder="BGL" type="number" id="bgl" class="small_input" name="bgl" />
+								</div>
+								<input type="checkbox" class="onoff mmol_mg left margin10px" id="bgl_unit" name="bgl_unit" checked="checked" ontouchend="calculateMmol()"/>
+							</li>
+							<li>
+								<div class="left_item">
+									<input placeholder="EtCO2"  id="etco2" type="number" class="small_input" name="etco2" />
+								</div>
+								<div>
+									<input placeholder="Temp" type="number" id="temp" class="small_input" name="temp" />
+								</div>
+								<input type="checkbox" class="onoff celsius_farenheit left margin10px" id="temp_unit" name="temp_unit" ontouchend="calculateTemperature()"/>						
+							</li>
+							<li>
+								<span class="label">Pain (0 to 10)</span>
+								<div>
+									<input type="tel" id="pain" name="pain" class="very_small_input" value="0"/>
+								</div>
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<span class="label">Time</span>
+								<input type="text" name="vitals_time" id="vitals_time" class="mobiscroll"/>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</form>
+			<form id="chart">
+				<div class="toolbar">
+				  <h1>Vitals Charts</h1>
+					<a href="#" class="back">Back</a>
+				</div>
+				<div>
+					<div id="holder"></div>
+					<div id="holder2"></div>
+				</div>
+			</form>
+			<form id="chief_complaint">
+				<div class="toolbar">
+					<h1>Chief Complaint</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label margin10pxr" section="main">Prim CC</span>
+								<select name="chief_complaint_1" id="chief_complaint_1" onchange="select_show_hide(this, 0, '#li_primary_complaint_other')">
+								</select>
+							</li>
+							<li id="li_primary_complaint_other">
+								<input placeholder="Custom Primary Complaint"  type="text" name="chief_complaint_1_other" id="chief_complaint_1_other">
+							</li>
+							<li>
+								<span class="label margin10pxr" section="main">Sec CC</span>
+								<input placeholder="Secondary Chief Complaint"  type="text" name="chief_complaint_2" id="chief_complaint_2">
+							</li>
+						</ul>
+						<ul class="edgetoedge noBorder">
+							<li class="sep fullWidth">Pertinent Negatives/Positives</li>
+						</ul>
+						<ul id="chief_complaint_line1" class="grid5Column">
+							<li id="cc_diff_breathing" ontouchend="oneTap_button(this)">Difficulty Breathing</li>
+							<li id="cc_chest_pain" ontouchend="oneTap_button(this)">Chest Pain</li>
+							<li id="cc_nausea" ontouchend="oneTap_button(this)">Nausea</li>
+							<li id="cc_vomiting" ontouchend="oneTap_button(this)">Vomiting</li>
+							<li id="cc_diarrhea" ontouchend="oneTap_button(this)">Diarrhea</li>
+						</ul>
+						<ul id="chief_complaint_line2" class="grid5Column">
+							<li id="cc_dizziness" ontouchend="oneTap_button(this)">Dizziness</li>
+							<li id="cc_headache" ontouchend="oneTap_button(this)">Headache</li>
+							<li id="cc_loc" ontouchend="oneTap_button(this)">LOC</li>
+							<li id="cc_numb_tingling" ontouchend="oneTap_button(this)">Numbness Tingling</li>
+							<li id="cc_gal_weakness" ontouchend="oneTap_button(this)">General Weakness</li>
+						</ul>
+						<ul id="chief_complaint_line3" class="grid5Column">
+							<li id="cc_lethargy" ontouchend="oneTap_button(this)">Lethargy</li>
+							<li id="cc_neck_pain" ontouchend="oneTap_button(this)">Neck Pain</li>
+						</ul>
+						<ul class="basic">
+							<li><img src="images/img/disabled.png" />Tap Once for Negative</li>
+							<li><img src="images/img/enabled.png" />Tap Twice for Positive</li>
+						</ul>
+					</div>
+				</div>
+			</form>
+			<div id="patient_hx">
+				<div class="toolbar">
+					<h1>Patient Hx</h1>
+					<a class="back" ontouchend="savePatientHx()">Back</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="edgetoedge" id="patient_hx_allergies_list">
+							<li class="sep">Allergies<a class="add_line" href="#patient_hx_allergies">+</a></li>	
+							<li id="allergies_template" class="entry list_sorted" style="display:none" >
+								<img class="unlock_line" src="images/img/disabled.png" />
+								<span class="hx_entry label">Allergies</span>
+								<span class="delete" style="display:none">Delete</span>
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<span class="label margin10pxr" section="main">Other Allergies</span>
+								<input placeholder="Other Allergies" type="text" name="pt_hx_allergies_other" id="pt_hx_allergies_other">
+							</li>				
+						</ul>
+						<ul class="edgetoedge" id="patient_hx_medication_list">
+							<li class="sep">Home Medications<a class="add_line" href="#patient_hx_medication">+</a></li>
+							<li id="homeMedications_template" class="entry list_sorted" style="display:none" >
+								<img class="unlock_line" src="images/img/disabled.png" />
+								<span class="hx_entry label">Medications</span>
+								<span class="delete" style="display:none">Delete</span>
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<span class="label margin10pxr" section="main">Other Medications</span>
+								<input placeholder="Other Medications" type="text" name="pt_hx_medications_other" id="pt_hx_medications_other">
+							</li>				
+						</ul>
+						<ul class="edgetoedge" id="patient_hx_conditions_list">
+							<li class="sep">Medical Conditions / Procedures<a class="add_line" href="#patient_hx_condition">+</a></li>	
+							<li id="medicalCondition_template" class="entry list_sorted" style="display:none" >
+								<img class="unlock_line" src="images/img/disabled.png" />
+								<span class="hx_entry label">Condition</span>
+								<span class="delete" style="display:none">Delete</span>
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<span class="label margin10pxr" section="main">Other Conditions</span>
+								<input placeholder="Other Conditions" type="text" name="pt_hx_conditions_other" id="pt_hx_conditions_other">
+							</li>				
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div id="patient_hx_allergies">
+				<div class="toolbar">
+					<h1>Allergies List</h1>
+					<a class="back" href="#" ontouchend="patientAllergiesList()">Done</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="edgetoedge" id="allergies_list">
+							<li class="sep">Allergies</li>
+							<li id="allergy_template" class="entry list_sorted" style="display:none" >
+								<img class="unlock_line" src="images/img/disabled.png" />
+								<span class="last_name label">Allergy</span>
+							</li>				
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div id="patient_hx_condition">
+				<div class="toolbar">
+					<h1>Condition List</h1>
+					<a class="back" href="#" ontouchend="patientConditionsList()">Done</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label margin10pxr" section="main">Condition Category</span>
+								<select name="condition_part" id="condition_part" onchange="changeConditionList(this)">
+									<option value="0">CVS</option>
+									<option value="1">Resp</option>
+									<option value="2">GU/GI</option>
+									<option value="3">Neuro</option>
+									<option value="4">Endocrine</option>
+									<option value="5">Psych</option>
+								</select>
+							</li>
+						</ul>
+						<ul class="edgetoedge" id="condition_list">
+							<li class="sep">Medical Problems</li>
+							<li id="condition_template" class="entry list_sorted" style="display:none" >
+								<img class="unlock_line" src="images/img/disabled.png" />
+								<span class="last_name label">problem</span>	
+							</li>				
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div id="patient_hx_medication">
+				<div class="toolbar">
+					<h1>Medication List</h1>
+					<a class="back" href="#" ontouchend="patientMedicationsList()">Done</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<input type="checkbox" class="longCheck generic_brand" id="generic_trade" name="generic_trade" ontouchend="switchMedication(this.checked)">
+							</li>
+						</ul>
+						<ul class="edgetoedge" id="medication_list">
+							<li class="sep">Medication</li>
+							<li id="medication_template" class="entry list_sorted" style="display:none" >
+								<img class="unlock_line" src="images/img/disabled.png" />
+								<span class="last_name label">Medication</span>
+							</li>				
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div id="exam">
+				<div class="toolbar">
+					<h1>Exam</h1>
+					<a class="back" href="#">Patient</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li class="arrow"><a href="#neuro">Neuro</a></li>
+							<li class="arrow"><a href="#abcs">ABC's</a></li>                          	
+							<li class="arrow"><a href="#trauma">Trauma</a></li>
+							<li class="arrow"><a href="#gi_gu">GI/GU &amp; OB/GYN</a></li>
+							<li class="arrow"><a href="#muscular_skeletal">Muscular/Skeletal</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<form id="neuro">
+				<div class="toolbar">
+					<h1>Neuro</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label margin10pxr" section="main">AVPU</span>
+								<select name="avpu" id="avpu">
+									<option value="0">AVP U</option>
+									<option value="1">Alert and Oriented x4</option>
+									<option value="2">Alert and Oriented x3</option>
+									<option value="3">Alert and Oriented x2</option>
+									<option value="4">Alert and Oriented x1</option>
+									<option value="5">Alert and Confused</option>
+									<option value="6">Alert To Verbal Stimuli</option>
+									<option value="7">Responds to Painful Stimuli</option>
+									<option value="8">Unresponsive</option>
+								</select>
+							</li>
+							<li>
+								<span class="label">GCS</span>
+								<input type="checkbox" class="onoff yes_no" id="gcs" name="gcs" ontouchend="elements_Show_Hide(this, '#li_gcs_related', '#li_apgar_related')">
+							</li>                          	
+							<li id="li_gcs_related" style="display:none;">
+								<select name="eyes" id="eyes" onchange="calculateTotalNeuro()">
+									<option value="0">Eyes</option>
+									<option value="4">4 Spontaneous</option>
+									<option value="3">3 To Command</option>
+									<option value="2">2 To Pain</option>
+									<option value="1">1 None</option>
+								</select>
+								<select name="verbal" id="verbal" onchange="calculateTotalNeuro()">
+									<option value="0">Verbal</option>
+									<option value="5">5 Oriented</option>
+									<option value="4">4 Confused</option>
+									<option value="3">3 Inappropriate</option>
+									<option value="2">2 Incomprehensive</option>
+									<option value="1">1 None</option>
+								</select>
+								<select name="motor" id="motor" onchange="calculateTotalNeuro()">
+									<option value="0">Motor</option>
+									<option value="6">6 Obeys</option>
+									<option value="5">5 Localizes Pain</option>
+									<option value="4">4 Withdraws</option>
+									<option value="3">3 Flexion</option>
+									<option value="2">2 Extension</option>
+									<option value="1">1 none</option>
+								</select>
+								<span id="total_neuro" name="total_neuro" class="label">Total</span>
+							</li>
+							<li id="li_apgar_related" style="display:none">
+								<span class="label">APGAR</span>
+								<div class="middle_item">
+									<a href="#apgar" ontouchend="selectMinute('1min')" class="button" id="neuro_apgar1">1 Minute</a>
+								</div>
+								<div>
+									<a href="#apgar" ontouchend="selectMinute('5min')" class="button" id="neuro_apgar5">5 Minutes</a>
+								</div>
+							</li>
+						</ul>
+						<ul class="edgetoedge">
+							<li class="sep">Pulse Sensation Movement</li>
+						</ul>
+						<ul class="grid4Column" id="neuro_psm">
+							<li id="psm_lux" ontouchend="oneTap_one_color_button(this)">LUX R</li>
+							<li id="psm_rux" ontouchend="oneTap_one_color_button(this)">RUX R</li>
+							<li id="psm_llx" ontouchend="oneTap_one_color_button(this)">LLX R</li>
+							<li id="psm_rlx" ontouchend="oneTap_one_color_button(this)">RLX R</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<span class="label">Suspect Stroke ?</span>
+								<input type="checkbox" class="onoff yes_no" id="suspect_stroke" name="suspect_stroke">
+							</li>
+							<li>
+								<span class="label">Facial Droop</span>
+								<input type="checkbox" class="onoff yes_no" id="facial_droop" name="facial_droop" ontouchend="element_Show_Hide(this, '#li_facial_droop_side')">
+							</li>
+							<li id="li_facial_droop_side">
+								<div class="right">
+									<input type="checkbox" class="onoff left_right" id="facial_droop_side" name="facial_droop_side" checked="checked">
+								</div>
+							</li>
+							<li>
+								<span class="label">Arm Drift</span>
+								<input type="checkbox" class="onoff yes_no" id="arm_drift" name="arm_drift" ontouchend="element_Show_Hide(this, '#li_arm_drift_side')">
+							</li>
+							<li id="li_arm_drift_side">
+								<div class="right">
+									<input type="checkbox" class="onoff left_right" id="arm_drift_side" name="arm_drift_side" checked="checked">
+								</div>
+							</li>
+							<li>
+								<span class="label margin10pxr" section="main">Speech</span>
+								<select name="speech" id="speech">
+									<option value="0">Speech</option>
+									<option value="1">Normal</option>
+									<option value="2">Dysphasic</option>
+									<option value="3">Aphasic</option>
+									<option value="4">Dysarthria</option>
+									<option value="5">Slurred</option>
+								</select>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</form>
+			<form id="abcs">
+				<div class="toolbar">
+					<h1>ABC's</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="bar" id="abcbar">
+					<input type="radio" name="airway_shortcut" id="airway_shortcut" title="Airway" ontouchend="abcToggle('a')" checked />
+					<input type="radio" name="breathing_shortcut" id="breathing_shortcut" title="Breathing" ontouchend="abcToggle('b')"/>
+					<input type="radio" name="circulation_shortcut" id="circulation_shortcut" title="Circulation" ontouchend="abcToggle('c')"/>
+				</div>
+				<div id="airwayDiv" class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li><span class="label">Open &amp; Patent</span>
+								<input type="checkbox" class="onoff yes_no" id="open_patent" name="open_patent" checked="checked">
+							</li>
+							<li><span class="label">Tracheal Deviation</span>
+								<input type="checkbox" class="onoff yes_no" id="tracheal_deviation" name="tracheal_deviation" ontouchend="element_Show_Hide(this, '#li_tracheal_deviation_side')">
+							</li>
+							<li id="li_tracheal_deviation_side">
+								<input type="checkbox" class="onoff left_right" id="tracheal_deviation_side" name="tracheal_deviation_side" checked="checked">
+							</li>
+							<li><span class="label">Interventions</span>
+								<input type="checkbox" class="onoff yes_no" id="interventions" name="interventions" checked="checked" ontouchend="element_Show_Hide(this, '#ul_interventions')">
+							</li>
+						</ul>
+						<ul class="individual" id="ul_interventions">
+							<li class="arrow"><a ontouchend="saveAbc('#airwayProcedures')">Airway Procedures</a></li>
+						</ul>
+					</div>
+				</div>
+				<div id="breathingDiv" style="display:none" id="airwayDiv" class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label">Breathing Type</span>
+								<select name="breathing_type" class="margin5px" id="breathing_type">
+									<option value="0">Regular</option>
+									<option value="1">Irregular</option>
+									<option value="2">Kussmaul</option>
+									<option value="3">Cheyne-Stokes</option>
+									<option value="4">Biot's</option>
+									<option value="5">Absent</option>
+								</select>
+							</li>
+							<li><span class="label">Laboured</span>
+								<input type="checkbox" class="onoff yes_no" id="laboured" name="laboured">
+							</li>
+							<li><span class="label">Effective</span>
+								<input type="checkbox" class="onoff yes_no" id="effective" name="effective" checked="checked">
+							</li>
+							<li><span class="label">Accessory Muscle</span>
+								<input type="checkbox" class="onoff yes_no" id="accessory_muscle" name="accessory_muscle">
+							</li>
+							<li><span class="label">Nasal Flare</span>
+								<input type="checkbox" class="onoff yes_no" id="nasal_flare" name="nasal_flare" checked="checked">
+							</li>
+							<li><span class="label">Cough</span>
+								<input type="checkbox" class="onoff yes_no" id="cough" name="cough" checked="checked" ontouchend="element_Show_Hide(this, '#li_productive')">
+							</li>
+							<li id="li_productive">
+								<span class="label">Productive</span>
+								<input type="checkbox" class="onoff yes_no" id="productive" name="productive" checked="checked">
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li><span class="label">Subcut. Emphysema</span>
+								<input type="checkbox" class="onoff yes_no" id="subcutaneous_emphysema" name="subcutaneous_emphysema" checked="checked">
+							</li>
+							<li><span class="label">Flailed Chest</span>
+								<input type="checkbox" class="onoff yes_no" id="flailed_chest" name="flailed_chest" ontouchend="element_Show_Hide(this, '#li_flailed_chest_side')">
+							</li>
+							<li id="li_flailed_chest_side">
+								<input type="checkbox" class="onoff left_right" id="flailed_chest_side" name="flailed_chest_side" checked="checked">
+							</li>
+							<li><span class="label">Suspect Pneumothorax</span>
+								<input type="checkbox" class="onoff yes_no" id="suspect_pneumothorax" name="suspect_pneumothorax" checked="checked">
+							</li>
+							<li>
+								<span class="label">Suspect Hemothorax</span>
+								<input type="checkbox" class="onoff yes_no" id="suspect_hemothorax" name="suspect_hemothorax" checked="checked">
+							</li>
+						</ul>
+						<ul class="edgetoedge">
+							<li class="sep">Lungs Sounds</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<span class="label">CTAx4</span>
+								<input type="checkbox" class="onoff yes_no" id="ctax4" name="ctax4" checked="checked" ontouchend="lungs_Show_Hide()">
+							</li>
+						</ul>
+						<ul id="lungs_related" class="individual">
+							<li>
+								<span class="label margin10pxr" section="main">UR</span>
+								<select name="UR_Lung_Sound" id="UR_Lung_Sound">
+									<option value="0">UR</option>
+									<option value="1">Clear</option>
+									<option value="2">Rales</option>
+									<option value="3">Rhonchi</option>
+									<option value="4">Wheezing</option>
+									<option value="5">Stridor</option>
+									<option value="6">Diminshed</option>
+									<option value="7">Absent</option>
+									<option value="8">Bronchial Breath Sounds</option>
+								</select>
+							</li>
+							<li class="li_right">
+								<span class="label margin10pxr" section="main">UL</span>
+								<select name="UL_Lung_Sound" id="UL_Lung_Sound">
+									<option value="0">UL</option>
+									<option value="1">Clear</option>
+									<option value="2">Rales</option>
+									<option value="3">Rhonchi</option>
+									<option value="4">Wheezing</option>
+									<option value="5">Stridor</option>
+									<option value="6">Diminshed</option>
+									<option value="7">Absent</option>
+									<option value="8">Bronchial Breath Sounds</option>
+								</select>
+							</li>
+							<li>
+								<span class="label margin10pxr" section="main">LR</span>
+								<select name="LR_Lung_Sound" id="LR_Lung_Sound">
+									<option value="0">LR</option>
+									<option value="1">Clear</option>
+									<option value="2">Rales</option>
+									<option value="3">Rhonchi</option>
+									<option value="4">Wheezing</option>
+									<option value="5">Stridor</option>
+									<option value="6">Diminshed</option>
+									<option value="7">Absent</option>
+									<option value="8">Bronchial Breath Sounds</option>
+								</select>
+							</li>
+							<li class="li_right">
+								<span class="label margin10pxr" section="main">LL</span>
+								<select name="LL_Lung_Sound" id="LL_Lung_Sound">
+									<option value="0">LL</option>
+									<option value="1">Clear</option>
+									<option value="2">Rales</option>
+									<option value="3">Rhonchi</option>
+									<option value="4">Wheezing</option>
+									<option value="5">Stridor</option>
+									<option value="6">Diminshed</option>
+									<option value="7">Absent</option>
+									<option value="8">Bronchial Breath Sounds</option>
+								</select>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div id="circulationDiv" style="display:none" id="airwayDiv" class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label margin10pxr" section="main">Pulse Location</span>
+								<select name="pulse_location" id="pulse_location">
+									<option value="0">Pulse Location</option>
+									<option value="1">Radial</option>
+									<option value="2">Brachial</option>
+									<option value="3">Carotid</option>
+									<option value="4">Femoral</option>
+									<option value="5">Pedal</option>
+								</select>
+							</li>
+							<li>
+								<span class="label margin10pxr" section="main">Pulse Quality</span>
+								<select name="pulse_quality" id="pulse_quality">
+									<option value="0">Pulse Quality</option>
+									<option value="1">Strong</option>
+									<option value="2">Weak</option>
+									<option value="3">Bounding</option>
+									<option value="4">Thready</option>
+								</select>
+							</li>
+							<li>
+								<span class="label">Pulse Regularity</span>
+								<input type="checkbox" class="onoff longCheck regular_irregular" id="pulse_regularity" name="pulse_regularity" checked="checked">
+							</li>
+							<li>
+								<span class="label">JVD</span>
+								<input type="checkbox" class="onoff yes_no" id="jvd" name="jvd">
+							</li>
+							<li>
+								<span class="label">Cap Refill</span>
+								<input type="checkbox" class="longCheck brisk_delayed" id="cap_refill" name="cap_refill" checked="checked">
+							</li>
+							<li>
+								<span class="label margin10pxr" section="main">Skin Color</span>
+								<select name="skin" id="skin">
+									<option value="0">Skin Color</option>
+									<option value="1">Normal</option>
+									<option value="2">Pale</option>
+									<option value="3">Flushed</option>
+									<option value="4">Jaundice</option>
+								</select>
+							</li>
+							<li>
+								<span class="label margin10pxr" section="main">Skin Temperature</span>
+								<select name="abctemp" id="abctemp">
+									<option value="0">Temperature</option>
+									<option value="1">Warm</option>
+									<option value="2">Hot</option>
+									<option value="3">Cool</option>
+									<option value="4">Cold</option>
+								</select>
+							</li>
+							<li>
+								<span class="label">Skin Condition</span>
+								<input type="checkbox" class="longCheck dry_diaphoretic" id="dry" name="dry" checked="checked">
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<span class="label">Heart Tones</span>
+								<select class="margin5px" name="heart_tones" id="heart_tones">
+									<option value="0">Heart Tones</option>
+									<option value="1">Normal</option>
+									<option value="2">S3</option>
+									<option value="3">S4</option>
+									<option value="4">Murmur</option>
+									<option value="5">Rub</option>
+									<option value="6">Gallop</option>
+								</select>
+							</li>
+							<li>
+								<span class="label">Quality</span>
+								<select class="margin5px" name="heart_tones_quality" id="heart_tones_quality">
+									<option value="0">Heart Tones quality</option>
+									<option value="1">Clear</option>
+									<option value="2">Muffled</option>
+								</select>
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li class="sep">Edema</li>
+							<li><span class="label">Peripheral Edema</span>
+								<input type="checkbox" class="onoff yes_no" id="peripheral_edema" name="peripheral_edema" ontouchend="element_Show_Hide(this, '#div_edema_details')">
+							</li>
+							<div id="div_edema_details">
+								<li>
+									<span class="label margin10pxr" section="main">Edema Location</span>
+									<select name="peripheral_edema_location" id="peripheral_edema_location">
+											<option value="0">Location</option>
+										<optgroup label="Lower Extremities"> 
+											<option value="ankle">Ankle</option>
+											<option value="midcalf">Mid Calf</option>
+											<option value="knee">Knee</option>
+										<optgroup label="Upper Extremities"> 
+											<option value="fingers">Fingers</option>
+											<option value="hand">Hand</option>
+											<option value="wrist">Wrist</option>
+											<option value="midforearm">Mid Forearm</option>
+											<option value="elbow">Elbow</option>
+										<optgroup label="Pulmonary"> 
+											<option value="bases">Bases</option>
+											<option value="lowerlobes">Lower Lobes</option>
+											<option value="midway">Midway</option>
+											<option value="upperlobes">Upper Lobes</option>
+											<option value="apex">Apex</option>
+										<optgroup label="Facial"> 
+											<option value="face">Face</option>
+											<option value="eyes">Eyes</option>
+											<option value="mouth">Mouth</option>
+											<option value="throat">Throat</option>
+									</select>
+								</li>
+								<li>
+									<span class="label margin10pxr" section="main">Edema Severity</span>
+									<select name="edema_severity" id="edema_severity">
+										<option value="0">Severity</option>
+										<option value="1">Non Pitting</option>
+										<option value="2">+1</option>
+										<option value="3">+2</option>
+										<option value="4">+3</option>
+										<option value="5">+4</option>
+									</select>
+								</li>
+							</div>
+						</ul>
+					</div>
+				</div> 
+			</form>
+			<form id="trauma">
+				<div class="toolbar">
+					<h1>Trauma</h1>
+                    <a href="#" class="back">Back</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded" id="traumaTypes">
+							<li id="li_is_trauma">
+								<span class="label" section="full">Signs/Sym. | Compl. Of</span>
+								<input type="checkbox" class="onoff yes_no" id="is_trauma" name="is_trauma" ontouchend="toggleTrauma()">
+							</li>
+							<li class="arrow"><a href="#auto">Auto / Moto</a></li>
+							<li class="arrow"><a href="#penetrating">Penetrating</a></li>                          	
+							<li class="arrow"><a href="#blunt">Blunt</a></li>
+							<li class="arrow"><a href="#fall">Fall</a></li>
+							<li class="arrow"><a href="#burn">Burn</a></li>
+						</ul>
+					</div>
+				</div>
+			</form>
+			<form id="auto">
+				<div class="toolbar">
+					<h1>Auto Trauma</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label">Vehicle</span>
+								<input type="checkbox" class="longCheck car_motorcycle" id="car" name="car" checked="checked"  ontouchend="car_Motorcycle()">
+							</li>
+							<li>
+								<span class="label left">Seat where patient was seated</span>
+								<div id="car_outline">
+									<div class="car_front_wheels"></div>
+									<div class="car_rear_wheels"></div>
+									<div class="car_hood"></div>
+									<div class="car_left_light"></div>
+									<div class="car_right_light"></div>
+									<div id="car_seats">
+										<div class="car1" id="car1" ontouchend="toggleSeat(this)"></div>
+										<div class="car2" id="car2" ontouchend="toggleSeat(this)"></div>
+										<div class="car3" id="car3" ontouchend="toggleSeat(this)"></div>
+										<div class="car4" id="car4" ontouchend="toggleSeat(this)"></div>
+										<div class="car5" id="car5" ontouchend="toggleSeat(this)"></div>
+										<div class="car6" id="car6" ontouchend="toggleSeat(this)"></div>
+									</div>
+									<div class="car_steering_wheel" id="car_steering_wheel" ontouchend="toggleSeat(this)"></div>
+								</div>
+								<div id="motorcycle_outline">
+									<div class="moto_side_wheel_axe"></div>
+									<div class="moto_wheels"></div>
+									<div class="moto_body"></div>
+									<div class="moto_light"></div>
+									<div class="moto_cache_light"></div>
+									<div class="moto_handle"></div>
+									<div class="moto_side_wheel"></div>
+									<div class="moto_side"></div>
+									<div id="motorcycle_seats">
+										<div class="motorcycle1" id="motorcycle1" ontouchend="toggleSeat(this)"></div>
+										<div class="motorcycle2" id="motorcycle2" ontouchend="toggleSeat(this)"></div>
+										<div class="motorcycle3" id="motorcycle3" ontouchend="toggleSeat(this)"></div>
+									</div>
+								</div>
+							</li>
+							<li class="car_details"><span class="label">Seatbelt</span>
+								<input type="checkbox" class="onoff yes_no" id="seatbelt" name="seatbelt" checked="checked">
+							</li>
+							<li class="car_details"><span class="label">Airbag Deployed</span>
+								<input type="checkbox" class="onoff yes_no" id="airbag" name="airbag" checked="checked">
+							</li>
+							<li class="motorcycle_details"><span class="label">Helmet</span>
+								<input type="checkbox" class="onoff yes_no" id="helmet" name="helmet" checked="checked">
+							</li>
+							<li class="motorcycle_details"><span class="label">Protective Clothes</span>
+								<input type="checkbox" class="onoff yes_no" id="leathers" name="leathers" checked="checked">
+							</li>
+							<li>
+								<div class="left_item">
+									<input placeholder="# occup." type="number" id="nb_occupants" class="small_input" name="nb_occupants">
+								</div>
+								<div>
+									<input placeholder="Speed" type="number" id="approx_speed" class="small_input" name="approx_speed">
+									&nbsp;<input type="checkbox" class="margin5px onoff kph_mph" id="speed_unit" name="speed_unit" checked="checked" ontouchend="calculateSpeed()">
+								</div>
+							</li>
+							<li>
+								<span class="label">Pt removed by</span>
+								<select class="margin5px" name="removed_by" id="removed_by">
+									<option value="0">Patient</option>
+									<option value="2">Driver</option>
+									<option value="3">Passenger</option>
+									<option value="4">Bystander</option>
+									<option value="5">Police</option>
+								</select>
+							</li>
+							<li>
+								<span class="label">Details given by</span>
+								<select class="margin5px" name="per" id="per">
+									<option value="0">Patient</option>
+									<option value="2">Driver</option>
+									<option value="3">Passenger</option>
+									<option value="4">Bystander</option>
+									<option value="5">Police</option>
+								</select>
+							</li>
+						</ul> 
+						<ul class="individual">
+							<li class="pictureLink" id="traumaAutoPhotoTake" onclick="takePicture('traumaAutoImage')" >Attach Photo</li>
+							<li class="nopictureLink li_right" id="traumaAutoPhotoRemove" onclick="removePicture('traumaAutoImage')" >No Photo</li>
+						</ul>
+						<img class="pictureHidden" id="traumaAutoImage" src="" />
+					</div>
+				</div>
+			</form>
+			<form id="penetrating">
+				<div class="toolbar">
+					<h1>Penetrating Trauma</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li><span class="label">Assault</span>
+								<input type="checkbox" class="onoff yes_no" id="assault_penetrating" name="assault_penetrating" checked="checked">
+							</li>
+							<li>
+								<span class="label margin10pxr" section="main">MOI</span>
+								<input placeholder="MOI" type="text" id="moi_penetrating" name="moi_penetrating">
+							</li>
+							<li><span class="label">Velocity</span>
+								<input type="checkbox" class="onoff high_low" id="velocity_penetrating" name="velocity_penetrating" checked="checked">
+							</li>	
+							<li><span class="label">Bleeding</span>
+								<input type="checkbox" class="onoff yes_no" id="bleeding_penetrating" name="bleeding_penetrating" checked="checked" ontouchend="element_Show_Hide(this, '#li_penetrating_bleeding_controlled')">
+							</li>
+							<li id="li_penetrating_bleeding_controlled"><span class="label">Controlled</span>
+								<input type="checkbox" class="onoff yes_no" id="controlled_penetrating" name="controlled_penetrating" checked="checked">
+							</li>
+						  </ul>
+						  <ul class="rounded">
+							<li class="sep">Systems Involved</li>
+							<li><span class="label">Head</span>
+								<input type="checkbox" class="onoff yes_no" id="head_penetrating" name="head_penetrating">
+							</li>	
+							<li><span class="label">Neck</span>
+								<input type="checkbox" class="onoff yes_no" id="neck_penetrating" name="neck_penetrating">
+							</li>
+							<li><span class="label">Chest</span>
+								<input type="checkbox" class="onoff yes_no" id="chest_penetrating" name="chest_penetrating">
+							</li>
+							<li><span class="label">ABD</span>
+								<input type="checkbox" class="onoff yes_no" id="abd_penetrating" name="abd_penetrating">
+							</li>	
+							<li><span class="label">Pelvis</span>
+								<input type="checkbox" class="onoff yes_no" id="pelvis_penetrating" name="pelvis_penetrating">
+							</li>
+							<li><span class="label">ULXR</span>
+								<input type="checkbox" class="onoff yes_no" id="ulxr_penetrating" name="ulxr_penetrating">
+							</li>
+							<li><span class="label">URXR</span>
+								<input type="checkbox" class="onoff yes_no" id="urxr_penetrating" name="urxr_penetrating">
+							</li>	
+							<li><span class="label">LLXR</span>
+								<input type="checkbox" class="onoff yes_no" id="llxr_penetrating" name="llxr_penetrating">
+							</li>
+							<li><span class="label">LRXR</span>
+								<input type="checkbox" class="onoff yes_no" id="lrxr_penetrating" name="lrxr_penetrating">
+							</li>
+							<li><span class="label">Back</span>
+								<input type="checkbox" class="onoff yes_no" id="back_penetrating" name="back_penetrating">
+							</li>
+						</ul>
+						<ul class="individual">
+							<li class="pictureLink" id="traumaPenetrPhotoTake" onclick="takePicture('traumaPenetrImage')" >Attach Photo</li>
+							<li class="nopictureLink li_right" id="traumaPenetrPhotoRemove" onclick="removePicture('traumaPenetrImage')" >No Photo</li>
+						</ul>
+						<img class="pictureHidden" id="traumaPenetrImage" src="" />
+					</div>
+				</div>
+			</form> 		
+			<form id="blunt">
+				<div class="toolbar">
+					<h1>Blunt Trauma</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li><span class="label">Assault</span>
+								<input type="checkbox" class="onoff yes_no" id="assault_blunt" name="assault_blunt" checked="checked">
+							</li>
+							<li>
+								<span class="label margin10pxr" section="main">MOI</span>
+								<input placeholder="MOI" type="text" id="moi_blunt" name="moi_blunt">
+							</li>	
+							<li><span class="label">Bleeding</span>
+								<input type="checkbox" class="onoff yes_no" id="bleeding_blunt" name="bleeding_blunt" checked="checked" ontouchend="element_Show_Hide(this, '#li_blunt_bleeding_controlled')">
+							</li>
+							<li id="li_blunt_bleeding_controlled">
+								<span class="label">Controlled</span>
+								<input type="checkbox" class="onoff yes_no" id="controlled_blunt" name="controlled_blunt" checked="checked">
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li class="sep">Systems Involved</li>
+							<li>
+								<span class="label">Head</span>
+								<input type="checkbox" class="onoff yes_no" id="head_blunt" name="head_blunt">
+							</li>	
+							<li>
+								<span class="label">Neck</span>
+								<input type="checkbox" class="onoff yes_no" id="neck_blunt" name="neck_blunt">
+							</li>
+							<li>
+								<span class="label">Chest</span>
+								<input type="checkbox" class="onoff yes_no" id="chest_blunt" name="chest_blunt">
+							</li>
+							<li>
+								<span class="label">ABD</span>
+								<input type="checkbox" class="onoff yes_no" id="abd_blunt" name="abd_blunt">
+							</li>	
+							<li>
+								<span class="label">Pelvis</span>
+								<input type="checkbox" class="onoff yes_no" id="pelvis_blunt" name="pelvis_blunt">
+							</li>
+							<li>
+								<span class="label">ULXR</span>
+								<input type="checkbox" class="onoff yes_no" id="ulxr_blunt" name="ulxr_blunt">
+							</li>
+							<li>
+								<span class="label">URXR</span>
+								<input type="checkbox" class="onoff yes_no" id="urxr_blunt" name="urxr_blunt">
+							</li>	
+							<li>
+								<span class="label">LLXR</span>
+								<input type="checkbox" class="onoff yes_no" id="llxr_blunt" name="llxr_blunt">
+							</li>
+							<li>
+								<span class="label">LRXR</span>
+								<input type="checkbox" class="onoff yes_no" id="lrxr_blunt" name="lrxr_blunt">
+							</li>
+							<li>
+								<span class="label">Back</span>
+								<input type="checkbox" class="onoff yes_no" id="back_blunt" name="back_blunt">
+							</li>
+						</ul>
+						<ul class="individual">
+							<li class="pictureLink" id="traumaBluntPhotoTake" onclick="takePicture('traumaBluntImage')" >Attach Photo</li>
+							<li class="nopictureLink li_right" id="traumaBluntPhotoRemove" onclick="removePicture('traumaBluntImage')" >No Photo</li>
+						</ul>
+						<img class="pictureHidden" id="traumaBluntImage" src="" />
+					</div>
+				</div>
+			</form>
+			<form id="fall">
+				<div class="toolbar">
+					<h1>Falls</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label">Assault</span>
+								<input type="checkbox" class="onoff yes_no" id="assault_fall" name="assault_fall" checked="checked">
+							</li>
+							<li>
+								<div>
+									<span class="label margin10pxr" section="main">Distance</span>
+									<input placeholder="Distance" type="number" id="distance_fall" class="small_input" name="distance_fall">
+								</div>
+								<input type="checkbox" class="onoff m_ft" id="distance_fall_unit" name="distance_fall_unit" ontouchend="calculateFallDistance()">
+							</li>
+							<li>
+								<span class="label margin10pxr" section="main">Surface</span>
+								<input placeholder="Surface" type="text" id="surface_fall" name="surface_fall">	
+							</li>
+							<li>
+								<span class="label">Loss of Consciousness</span>
+								<input type="checkbox" class="onoff yes_no" id="loss_of_c_fall" name="loss_of_c_fall" checked="checked" ontouchend="element_Show_Hide(this, '#li_loss_of_c_time')">
+							</li>	
+							<li id="li_loss_of_c_time">
+								<span class="label">Time in minutes</span>
+								<div>
+									<input placeholder="min" class="small_input" type="number" id="time_loss_of_c_fall" name="time_loss_of_c_fall">
+								</div>
+							</li>	
+							<li>
+								<span class="label">Bleeding</span>
+								<input type="checkbox" class="onoff yes_no" id="bleeding_fall" name="bleeding_fall" checked="checked" ontouchend="element_Show_Hide(this, '#li_controlled_fall')">
+							</li>
+							<li id="li_controlled_fall">
+								<span class="label">Controlled</span>
+								<input type="checkbox" class="onoff yes_no" id="controlled_fall" name="controlled_fall" checked="checked">
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li class="sep">Systems Involved</li>
+							<li>
+								<span class="label">Head</span>
+								<input type="checkbox" class="onoff yes_no" id="head_fall" name="head_fall">
+							</li>	
+							<li><span class="label">Neck</span>
+								<input type="checkbox" class="onoff yes_no" id="neck_fall" name="neck_fall">
+							</li>
+							<li><span class="label">Chest</span>
+								<input type="checkbox" class="onoff yes_no" id="chest_fall" name="chest_fall">
+							</li>
+							<li><span class="label">ABD</span>
+								<input type="checkbox" class="onoff yes_no" id="abd_fall" name="abd_fall">
+							</li>	
+							<li><span class="label">Pelvis</span>
+								<input type="checkbox" class="onoff yes_no" id="pelvis_fall" name="pelvis_fall">
+							</li>
+							<li><span class="label">ULXR</span>
+								<input type="checkbox" class="onoff yes_no" id="ulxr_fall" name="ulxr_fall">
+							</li>
+							<li><span class="label">URXR</span>
+								<input type="checkbox" class="onoff yes_no" id="urxr_fall" name="urxr_fall">
+							</li>	
+							<li><span class="label">LLXR</span>
+								<input type="checkbox" class="onoff yes_no" id="llxr_fall" name="llxr_fall">
+							</li>
+							<li><span class="label">LRXR</span>
+								<input type="checkbox" class="onoff yes_no" id="lrxr_fall" name="lrxr_fall">
+							</li>
+							<li><span class="label">Back</span>
+								<input type="checkbox" class="onoff yes_no" id="back_fall" name="back_fall">
+							</li>
+						</ul>
+						<ul class="individual">
+							<li class="pictureLink" id="traumaFallPhotoTake" onclick="takePicture('traumaFallImage')" >Attach Photo</li>
+							<li class="nopictureLink li_right" id="traumaAutoPhotoRemove" onclick="removePicture('traumaFallImage')" >No Photo</li>
+						</ul>
+						<img class="pictureHidden" id="traumaFallImage" src="" />
+					</div>
+				</div>
+			</form>     
+			<form id="burn">
+				<div class="toolbar">
+					<h1>Burn</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="bar" id="burnbar">
+					<input type="radio" name="burn_adult_shortcut" id="burn_adult_shortcut" title="Adult" ontouchend="burnToggle('adult')" checked />
+					<input type="radio" name="burn_obese_shortcut" id="burn_obese_shortcut" title="Obese" ontouchend="burnToggle('obese')"/>
+					<input type="radio" name="burn_child_shortcut" id="burn_child_shortcut" title="Child" ontouchend="burnToggle('child')"/>
+					<input type="radio" name="burn_infant_shortcut" id="burn_infant_shortcut" title="Infant" ontouchend="burnToggle('infant')"/>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<span class="label" id="burn_front">Front</span>
+						<span class="label" id="burn_back">Back</span>
+						<div id="div_burn_percentage">
+							<input class="small_input burn_info" placeholder="0" type="number" id="total_burn_percentage" name="total_burn_percentage" readonly>	
+							<span class="label burn_info margin5px">%</span>
+						</div>
+						<div class="body_parts" id="burn_body_parts">
+							<img class="body_head_front" id="burn_head_front" src="images/body/head_front_0.png" ontouchend="toggle_body_part(this, '4.5', '1', '8.5', '10')"/>
+							<img class="body_head_back" id="burn_head_back" src="images/body/head_back_0.png" ontouchend="toggle_body_part(this, '4.5', '1', '8.5', '10')"/>
+							<img class="body_chest" id="burn_chest" src="images/body/chest_0.png" ontouchend="toggle_body_part(this, '9', '12.5', '9', '8')"/>
+							<img class="body_abdomen" id="burn_abdomen" src="images/body/abdomen_0.png" ontouchend="toggle_body_part(this, '9', '12.5', '9', '8')"/>
+							<img class="body_upper_back" id="burn_upper_back" src="images/body/upper_back_0.png" ontouchend="toggle_body_part(this, '9', '12.5', '9', '8')"/>
+							<img class="body_lower_back" id="burn_lower_back" src="images/body/lower_back_0.png" ontouchend="toggle_body_part(this, '9', '12.5', '9', '8')"/>
+							<img class="body_ulx_up_front" id="burn_ulx_up_front" src="images/body/ulx_up_front_0.png" ontouchend="toggle_body_part(this, '2.25', '1.25', '2.25', '2')"/>
+							<img class="body_ulx_low_front" id="burn_ulx_low_front" src="images/body/ulx_low_front_0.png" ontouchend="toggle_body_part(this, '2.25', '1.25', '2.25', '2')"/>
+							<img class="body_ulx_up_back" id="burn_ulx_up_back" src="images/body/ulx_up_back_0.png" ontouchend="toggle_body_part(this, '2.25', '1.25', '2.25', '2')"/>
+							<img class="body_ulx_low_back" id="burn_ulx_low_back" src="images/body/ulx_low_back_0.png" ontouchend="toggle_body_part(this, '2.25', '1.25', '2.25', '2')"/>
+							<img class="body_urx_up_front" id="burn_urx_up_front" src="images/body/urx_up_front_0.png" ontouchend="toggle_body_part(this, '2.25', '1.25', '2.25', '2')"/>
+							<img class="body_urx_low_front" id="burn_urx_low_front" src="images/body/urx_low_front_0.png" ontouchend="toggle_body_part(this, '2.25', '1.25', '2.25', '2')"/>
+							<img class="body_urx_up_back" id="burn_urx_up_back" src="images/body/urx_up_back_0.png" ontouchend="toggle_body_part(this, '2.25', '1.25', '2.25', '2')"/>
+							<img class="body_urx_low_back" id="burn_urx_low_back" src="images/body/urx_low_back_0.png" ontouchend="toggle_body_part(this, '2.25', '1.25', '2.25', '2')"/>
+							<img class="body_llx_up_front" id="burn_llx_up_front" src="images/body/llx_up_front_0.png" ontouchend="toggle_body_part(this, '4.5', '5', '3.25', '4')"/>
+							<img class="body_llx_low_front" id="burn_llx_low_front" src="images/body/llx_low_front_0.png" ontouchend="toggle_body_part(this, '4.5', '5', '3.25', '4')"/>
+							<img class="body_llx_up_back" id="burn_llx_up_back" src="images/body/llx_up_back_0.png" ontouchend="toggle_body_part(this, '4.5', '5', '6.5', '4')"/>
+							<img class="body_llx_low_back" id="burn_llx_low_back" src="images/body/llx_low_back_0.png" ontouchend="toggle_body_part(this, '4.5', '5', '3.25', '4')"/>
+							<img class="body_lrx_up_front" id="burn_lrx_up_front" src="images/body/lrx_up_front_0.png" ontouchend="toggle_body_part(this, '4.5', '5', '3.25', '4')"/>
+							<img class="body_lrx_low_front" id="burn_lrx_low_front" src="images/body/lrx_low_front_0.png" ontouchend="toggle_body_part(this, '4.5', '5', '3.25', '4')"/>
+							<img class="body_lrx_up_back" id="burn_lrx_up_back" src="images/body/lrx_up_back_0.png" ontouchend="toggle_body_part(this, '4.5', '5', '3.25', '4')"/>
+							<img class="body_lrx_low_back" id="burn_lrx_low_back" src="images/body/lrx_low_back_0.png" ontouchend="toggle_body_part(this, '4.5', '5', '3.25', '4')"/>
+						</div>
+						<div class="body_background">
+						</div>
+						<div id="burns_legend">
+							<span id="pink">1st degree</span>
+							<span id="red">2nd degree</span>
+							<span id="black">3rd degree</span>
+						</div>
+						<ul class="individual">
+							<li class="pictureLink" id="traumaBurnPhotoTake" onclick="takePicture('traumaBurnImage')" >Attach Photo</li>
+							<li class="nopictureLink li_right" id="traumaBurnPhotoRemove" onclick="removePicture('traumaBurnImage')" >No Photo</li>
+						</ul>
+						<img class="pictureHidden" id="traumaBurnImage" src="" />
+					</div>
+				</div>
+			</form>     
+			<form id="gi_gu">
+				<div class="toolbar">
+					<h1>GI/GU Exam</h1>
+					<input type="submit" value="Done"/>
+					<a id="link_field_delivery" class="button nextToCancel" ontouchend="saveGIGU('#field_delivery')">Field Delivery</a>
+					<a class="cancel">Cancel</a>
+				</div>
+				<div class="bar" id="gigubar">
+					<input type="radio" name="gi_shortcut" id="gi_shortcut" title="GI" ontouchend="gi_guToggle('gi')" checked />
+					<input type="radio" name="gu_shortcut" id="gu_shortcut" title="GU" ontouchend="gi_guToggle('gu')"/>
+					<input type="radio" class="female_related" name="ob_gyn_shortcut" id="ob_gyn_shortcut" title="OB/GYN" ontouchend="gi_guToggle('ob_gyn')"/>
+				</div>
+				<div id="giDiv" class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label">Assessed</span>
+								<input type="checkbox" class="onoff yes_no" id="gi_assessed" name="gi_assessed" ontouchend="element_Show_Hide(this, '#div_giDetails')">
+							</li>
+						</ul>
+						<div id="div_giDetails">
+							<ul class="rounded">
+								<li>
+									<input type="checkbox" class="onoff soft_hard" id="soft" name="soft" checked="checked">
+								</li>
+								<li>
+									<input type="checkbox" class="longCheck flat_distended" id="flat" name="flat" checked="checked">
+								</li>
+								<li>
+									<input type="checkbox" class="longCheck non_tender_tender" id="tender" name="tender" checked="checked">
+								</li> 
+								<li><span class="label">Rebound?</span>
+									<input type="checkbox" class="onoff yes_no" id="rebound" name="rebound">
+								</li>
+							</ul>
+							<ul class="edgetoedge">
+								<li class="sep">Location of Pain</li>
+							</ul>
+							<ul class="rounded" id="gi_pain_location">
+								<li>
+									<div id="gi_outline">
+										<div class="gi_luq" id="gi_luq" ontouchend="gi_outline_toggle(this)"></div>
+										<div class="gi_ruq" id="gi_ruq" ontouchend="gi_outline_toggle(this)"></div>
+										<div class="gi_llq" id="gi_llq" ontouchend="gi_outline_toggle(this)"></div>
+										<div class="gi_rlq" id="gi_rlq" ontouchend="gi_outline_toggle(this)"></div>
+										<div class="epigastric" id="epigastric" ontouchend="gi_outline_toggle(this)"></div>
+										<div class="suprapubic" id="suprapubic" ontouchend="gi_outline_toggle(this)"></div>
+									</div>
+								</li>
+							</ul>
+							<ul class="rounded">
+								<li>
+									<span class="label">Obese</span>
+									<input type="checkbox" class="onoff yes_no" id="obese" name="obese">
+								</li>	
+								<li>
+									<span class="label margin10pxr" section="main">Last BM</span>
+									<input placeholder="Last Bowel Movement" type="text" name="gi_last_bm" id="gi_last_bm" class="mobiscroll"/>
+								</li>
+								<li>
+									<span class="label margin10pxr" section="main">Last OI</span>
+									<input placeholder="Last oral intake" type="text" name="gi_loi" id="gi_loi" class="mobiscroll"/>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div id="guDiv" style="display:none" class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label">Assessed</span>
+								<input type="checkbox" class="onoff yes_no" id="gu_assessed" name="gu_assessed" ontouchend="element_Show_Hide(this, '#div_guDetails')">
+							</li>
+						</ul>
+						<div id="div_guDetails">
+							<ul class="rounded">
+								<li>
+									<span class="label">Pain</span>
+									<input type="checkbox" class="onoff yes_no" id="gu_pain" name="gu_pain">
+								</li>
+								<li>
+									<span class="label">Frequency</span>
+									<input type="checkbox" class="onoff yes_no" id="gu_frequency" name="gu_frequency">
+								</li>
+								<li>
+									<span class="label">Hematuria</span>
+									<input type="checkbox" class="onoff yes_no" id="hematuria" name="hematuria">
+								</li>
+								<li>
+									<span class="label">Incontinence</span>
+									<input type="checkbox" class="onoff yes_no" id="incontinence" name="incontinence">
+								</li>
+								<li>
+									<span class="label">Bladder Distention</span>
+									<input type="checkbox" class="onoff yes_no" id="bladder_distention" name="bladder_distention">
+								</li>
+								<li>
+									<span class="label">Urinary Urgency</span>
+									<input type="checkbox" class="onoff yes_no" id="urinary_urgency" name="urinary_urgency">
+								</li>
+								<li>
+									<span class="label margin10pxr" section="main">Last Void</span>
+									<input placeholder="Last void" type="text" name="gu_last_void" id="gu_last_void" class="mobiscroll"/>
+								</li>
+							 </ul>
+						</div>
+					</div>
+				</div>
+				<div id="ob_gynDiv" style="display:none" id="guDiv" style="display:none" class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<input placeholder="Gravid" type="number" class="row5_input" id="gravid" name="gravid">
+								<input placeholder="Term" type="number" class="row5_input" id="term" name="term">
+								<input placeholder="Para" type="number" class="row5_input" id="para" name="para">
+								<input placeholder="Abortia" type="number" class="row5_input" id="abortia" name="abortia">
+								<input placeholder="Live" type="number" class="row5_input" id="live" name="live">
+							</li>
+							<li>
+								<span class="label margin10pxr" section="main">Last Menst</span>
+								<input placeholder="Last menstruation" type="text" name="last_menstruation" id="last_menstruation" class="mobiscroll"/>
+							</li>
+							<li>
+								<span class="label">Vaginal Discharge</span>
+								<input type="checkbox" class="onoff yes_no" id="vaginal_discharge" name="vaginal_discharge" ontouchend="element_Show_Hide(this, '#li_discharge_substance')">
+							</li>
+							<li id="li_discharge_substance">
+								<input placeholder="Substance" type="text" name="discharge_substance" id="discharge_substance" />
+							</li>
+							<li>
+								<span class="label">Pregnant</span>
+								<select class="margin5px" name="pregnant" id="pregnant" onchange="select_show_hide(this, 1, '#div_pregnant_related');
+								select_show_hide(this, 1, '#link_field_delivery')">
+									<option value="0">No</option>
+									<option value="1">Yes</option>
+									<option value="2">Possibly</option>
+									<option value="3">Unknown</option>
+								</select>
+							</li>
+						</ul>
+						<div  id="div_pregnant_related">
+							<ul class="rounded">
+								<li>
+									<span class="label margin10pxr" section="main">EDC</span>
+									<input Placeholder="EDC" type="text" name="edc" id="edc" class="mobiscroll"/>
+								</li>
+								<li>
+									<span class="label">Gestation is known</span>
+									<input type="checkbox" class="onoff yes_no" id="know_gestation" name="know_gestation" ontouchend="element_Show_Hide(this, '#li_gestation_weeks')">
+								</li>
+								<li id="li_gestation_weeks">
+									<div>
+										<input placeholder="#" type="number" class="small_input" name="gestation_weeks" id="gestation_weeks" />
+										<span class="label margin5px">Weeks</span>
+									</div>
+								</li>
+								<li class="sep">Edema</li>
+								<li><span class="label">Edema</span>
+									<input type="checkbox" class="onoff yes_no" id="gyn_edema" name="gyn_edema" ontouchend="element_Show_Hide(this, '#div_gyn_edema_details')">
+								</li>
+								<div id="div_gyn_edema_details">
+									<li>
+										<span class="label margin10pxr" section="main">Edema Location</span>
+										<select name="gyn_edema_location" id="gyn_edema_location">
+												<option value="0">Location</option>
+											<optgroup label="Lower Extremities"> 
+												<option value="ankle">Ankle</option>
+												<option value="midcalf">Mid Calf</option>
+												<option value="knee">Knee</option>
+											<optgroup label="Upper Extremities"> 
+												<option value="fingers">Fingers</option>
+												<option value="hand">Hand</option>
+												<option value="wrist">Wrist</option>
+												<option value="midforearm">Mid Forearm</option>
+												<option value="elbow">Elbow</option>
+											<optgroup label="Pulmonary"> 
+												<option value="bases">Bases</option>
+												<option value="lowerlobes">Lower Lobes</option>
+												<option value="midway">Midway</option>
+												<option value="upperlobes">Upper Lobes</option>
+												<option value="apex">Apex</option>
+											<optgroup label="Facial"> 
+												<option value="face">Faces</option>
+												<option value="eyes">Eyes ?</option>
+												<option value="mouth">Mouth ?</option>
+												<option value="throat">Throat ?</option>
+										</select>
+									</li>
+									<li>
+										<span class="label margin10pxr" section="main">Edema Severity</span>
+										<select name="gyn_edema_severity" id="gyn_edema_severity">
+											<option value="0">Severity</option>
+											<option value="1">Non Pitting</option>
+											<option value="2">+1</option>
+											<option value="3">+2</option>
+											<option value="4">+3</option>
+											<option value="5">+4</option>
+										</select>
+									</li>
+								</div>
+								<li>
+									<span class="label">Membranes intact ?</span>
+									<input type="checkbox" class="onoff yes_no" id="membrane_intact" name="membrane_intact" ontouchend="element_Show_Hide_Reverse(this, '#div_membrane_related')">
+								</li>
+								<div id="div_membrane_related">
+									<li>
+										<span class="label margin10pxr" section="main">Rupt Time</span>
+										<input placeholder="Time of rupture" type="text" name="membrane_ruptured" id="membrane_ruptured" class="mobiscroll"/>
+									</li>
+									<li>
+										<span class="label margin10pxr" section="main">Fluid</span>
+										<input placeholder="Color/Type of Fluid" type="text" name="membrane_fluid" id="membrane_fluid" />
+									</li>
+								</div>
+								<li>
+									<span class="label"># of Babies Expected</span>
+									<div>
+										<input placeholder="#" type="number" class="small_input" name="expected_babies" id="expected_babies" />
+									</div>
+								</li>
+								<li><span class="label">Fetal Movement ?</span>
+									<input type="checkbox" class="onoff yes_no" id="fetal_movement" name="fetal_movement" ontouchend="element_Show_Hide(this, '#div_movement_related')">
+								</li>
+								<div id="div_movement_related">
+									<li>
+										<span class="label margin10pxr" section="main">Last Mvmt</span>
+										<input placeholder="Last movement" type="text" name="last_movement" id="last_movement" class="mobiscroll"/>
+									</li>
+									<li>
+										<span class="label">Movement per hr</span>
+										<div>
+											<input placeholder="#" type="number" class="small_input" name="movement_per_hr" id="movement_per_hr" />
+										</div>
+									</li>
+									<li>
+										<span class="label">Contractions ?</span>
+										<input type="checkbox" class="onoff yes_no" id="contractions" name="contractions" ontouchend="element_Show_Hide(this, '#li_contractions_related')">
+									</li>
+									<li id="li_contractions_related">
+										<div class="left">
+											<input placeholder="Duration" type="number" class="very_small_input" name="contraction_duration" id="contraction_duration" />
+											<span class="label margin5px">/min.sec</span>
+										</div>
+										<div class="right">
+											<input placeholder="Separation" type="number" class="very_small_input" name="contraction_separation" id="contraction_separation" />
+											<span class="label margin5px">/min.sec</span>
+										</div>
+									</li>
+								</div>
+							</ul>	
+						</div>
+					</div>
+				</div>
+			</form>
+			<form id="field_delivery">
+				<div class="toolbar">
+					<h1>Field Delivery</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="s-scrollwrapper contentwrap" id="test">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label margin10pxr" section="main">Present</span>
+								<select name="field_delivery_presentation" id="field_delivery_presentation">
+									<option value="0" selected="selected">Initial Presentation</option>
+									<option value="1">Breech</option>
+									<option value="2">Footling Breech</option>
+									<option value="3">Limb Presentation</option>
+									<option value="4">Transverse Lie</option>
+									<option value="5">Shoulder-first</option>
+									<option value="6">Head First, Face Down</option>
+									<option value="7">Head First, Face Up</option>
+								</select>
+							</li>
+							<li>
+								<span class="label margin10pxr" section="main">T of deliv</span>
+								<input placeholder="Time of Delivery" type="text" name="field_delivery_time_delivery" id="field_delivery_time_delivery" class="mobiscroll"/>
+							</li>
+							<li>
+								<span class="label margin10pxr" section="main">Meconium</span>
+								<input placeholder="Meconium" type="text" name="field_delivery_meconium" id="field_delivery_meconium" />
+							</li>
+							<li>
+								<span class="label">Cord Cut @ </span>
+								<div>
+									<input placeholder="0" type="number" class="very_small_input" name="field_delivery_cord_length" id="field_delivery_cord_length" />
+								</div>
+								<span class="label margin5px">" from baby</span>
+							</li>
+							<li>
+								<span class="label">APGAR</span>
+								<div class="middle_item">
+									<a href="#apgar" ontouchend="selectMinute('1min')" class="button" id="field_delivery_apgar1">1 Minute</a>
+								</div>
+								<div>
+									<a href="#apgar" ontouchend="selectMinute('5min')" class="button" id="field_delivery_apgar5">5 Minutes</a>
+								</div>
+							</li>
+							<li>
+								<span class="label">Stimulation Required</span>
+								<input type="checkbox" class="onoff yes_no" id="field_delivery_stimulation" name="field_delivery_stimulation" ontouchend="element_Show_Hide(this, '#li_stimulation_related')">
+							</li>
+							<li id="li_stimulation_related">
+								<span class="label margin10pxr" section="main">Stimul Type</span>
+								<input placeholder="Type of Stimulation" type="text" name="field_delivery_stimulation_type" id="field_delivery_stimulation_type">
+							</li>
+							<li><span class="label">Placenta Delivery</span>
+								<input type="checkbox" class="onoff yes_no" id="field_delivery_placenta" name="field_delivery_placenta" ontouchend="element_Show_Hide(this, '#div_placenta_related')">
+							</li>
+							<div id="div_placenta_related">
+								<li>
+									<span class="label margin10pxr" section="main">T Plac Deliv</span>
+									<input placeholder="Time plac. delivery" type="text" name="field_delivery_time_placenta" id="field_delivery_time_placenta" class="mobiscroll"/>
+								</li>
+								<li><span class="label">Placenta Intact</span>
+									<input type="checkbox" class="onoff yes_no" id="field_delivery_placenta_intact" name="field_delivery_placenta_intact">
+								</li>
+							</div>
+						</ul>
+					</div>
+				</div>
+			</form>
+			<form id="apgar">
+				<div class="toolbar">
+					<h1>APGAR</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label margin10pxr" section="main">Appearance</span>
+								<select name="apgar_appearance" id="apgar_appearance" onchange="calculateTotalApgar()">
+									<option value="0" selected="selected">Appearance</option>
+									<option value="0">0 Blue, pale</option>
+									<option value="1">1 Body pink, extremities blue</option>
+									<option value="3">3 Completely pink</option>
+								</select>
+							</li>
+							<li>
+								<span class="label margin10pxr" section="main">Pulse Rate</span>
+								<select name="apgar_pulse_rate" id="apgar_pulse_rate" onchange="calculateTotalApgar()">
+									<option value="0" selected="selected">Pulse Rate</option>
+									<option value="0">0 Absent</option>
+									<option value="1">1 Below 100</option>
+									<option value="2">2 Above 100</option>
+								</select>
+							</li>
+							<li>
+								<span class="label margin10pxr" section="main">Grimace</span>
+								<select name="apgar_grimace" id="apgar_grimace" onchange="calculateTotalApgar()">
+									<option value="0" selected="selected">Grimace</option>
+									<option value="0">0 No Response</option>
+									<option value="1">1 Grimaces</option>
+									<option value="2">2 Cries</option>
+								</select>
+							</li>
+							<li>
+								<span class="label margin10pxr" section="main">Activity</span>
+								<select name="apgar_activity" id="apgar_activity" onchange="calculateTotalApgar()">
+									<option value="0" selected="selected">Activity</option>
+									<option value="0">0 Limp</option>
+									<option value="1">1 Some flexation of extremities</option>
+									<option value="2">2 Active motion</option>
+								</select>
+							</li>
+							<li>
+								<span class="label margin10pxr" section="main">Respiratory</span>
+								<select name="apgar_respiratory" id="apgar_respiratory" onchange="calculateTotalApgar()">
+									<option value="0" selected="selected">Respiratory</option>
+									<option value="0">0 Absent</option>
+									<option value="1">1 Slow and irregular</option>
+									<option value="2">2 Strong Cry</option>
+								</select>
+							</li>					
+							<li>
+								<span class="label" id="apgar_total">Total:</span>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</form>
+			<form id="muscular_skeletal">
+				<div class="toolbar">
+					<h1>Muscular/Skeletal</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label">No Complaints</span>
+								<input type="checkbox" class="onoff yes_no" id="muscular_skeletal_no_complaints" name="muscular_skeletal_no_complaints" checked="checked"  ontouchend="element_Show_Hide_Reverse(this, '#div_complaints')">
+							</li>
+						</ul>
+						<div id="div_complaints">
+							<ul class="edgetoedge noBorder">
+								<li class="sep fullWidth" ontouchend="toggleElement('#complaint_head')">Head</li>
+							</ul>
+							<ul id="complaint_head" class="grid5Column">
+								<li id="head_deformities" ontouchend="oneTap_one_color_button(this)">Deformities</li>
+								<li id="head_contusion" ontouchend="oneTap_one_color_button(this)">Contusion</li>
+								<li id="head_abrasion" ontouchend="oneTap_one_color_button(this)">Abrasion</li>
+								<li id="head_puncture" ontouchend="oneTap_one_color_button(this)">Puncture</li>
+								<li id="head_penetration" ontouchend="oneTap_one_color_button(this)" class="last">Penetration</li>
+								<li id="head_bruises" ontouchend="oneTap_one_color_button(this)">Burn</li>
+								<li id="head_tenderness" ontouchend="oneTap_one_color_button(this)">Tenderness</li>
+								<li id="head_laceration" ontouchend="oneTap_one_color_button(this)">Laceration</li>
+								<li id="head_swelling" ontouchend="oneTap_one_color_button(this)">Swelling</li>
+								<li id="head_crepitus" ontouchend="oneTap_one_color_button(this)" class="last">Crepitus</li>
+								<li id="head_battle_Signs" ontouchend="oneTap_one_color_button(this)">Battle Signs</li>
+								<li id="head_raccoon_Eyes" ontouchend="oneTap_one_color_button(this)">Raccoon Eyes</li>
+							</ul>
+							<ul class="edgetoedge noBorder">
+								<li class="sep fullWidth" ontouchend="toggleElement('#complaint_neck')">Neck</li>
+							</ul>
+							<ul id="complaint_neck" class="grid5Column">
+								<li id="neck_deformities" ontouchend="oneTap_one_color_button(this)">Deformities</li>
+								<li id="neck_contusion" ontouchend="oneTap_one_color_button(this)">Contusion</li>
+								<li id="neck_abrasion" ontouchend="oneTap_one_color_button(this)">Abrasion</li>
+								<li id="neck_puncture" ontouchend="oneTap_one_color_button(this)">Puncture</li>
+								<li id="neck_deformities" ontouchend="oneTap_one_color_button(this)" class="last">Penetration</li>
+								<li id="neck_penetration" ontouchend="oneTap_one_color_button(this)">Burn</li>
+								<li id="neck_tenderness" ontouchend="oneTap_one_color_button(this)">Tenderness</li>
+								<li id="neck_laceration" ontouchend="oneTap_one_color_button(this)">Laceration</li>
+								<li id="neck_swelling" ontouchend="oneTap_one_color_button(this)">Swelling</li>
+								<li id="neck_crepitus" ontouchend="oneTap_one_color_button(this)" class="last">Crepitus</li>
+								<li id="neck_step-off" ontouchend="oneTap_one_color_button(this)">Step-off</li>
+							</ul>
+							<ul class="edgetoedge noBorder">
+								<li class="sep fullWidth" ontouchend="toggleElement('#complaint_chest')">Chest</li>
+							</ul>
+							<ul id="complaint_chest" class="grid5Column">
+								<li id="chest_deformities" ontouchend="oneTap_one_color_button(this)">Deformities</li>
+								<li id="chest_contusion" ontouchend="oneTap_one_color_button(this)">Contusion</li>
+								<li id="chest_abrasion" ontouchend="oneTap_one_color_button(this)">Abrasion</li>
+								<li id="chest_puncture" ontouchend="oneTap_one_color_button(this)">Puncture</li>
+								<li id="chest_penetration" ontouchend="oneTap_one_color_button(this)" class="last">Penetration</li>
+								<li id="chest_bruises" ontouchend="oneTap_one_color_button(this)">Burn</li>
+								<li id="chest_bruises" ontouchend="oneTap_one_color_button(this)">Tenderness</li>
+								<li id="chest_tenderness" ontouchend="oneTap_one_color_button(this)">Laceration</li>
+								<li id="chest_swelling" ontouchend="oneTap_one_color_button(this)">Swelling</li>
+								<li id="chest_crepitus" ontouchend="oneTap_one_color_button(this)" class="last">Crepitus</li>
+								<li id="chest_paradoxic_al_motion" ontouchend="oneTap_one_color_button(this)">Paradoxic al Motion</li>
+								<li id="chest_equal_chest_rise" ontouchend="oneTap_one_color_button(this)">Equal Chest Rise</li>
+							</ul>
+							<ul class="edgetoedge noBorder">
+								<li class="sep fullWidth" ontouchend="toggleElement('#complaint_abdomen')">Abdomen</li>
+							</ul>
+							<ul id="complaint_abdomen" class="grid5Column">
+								<li id="abdomen_deformities" ontouchend="oneTap_one_color_button(this)">Deformities</li>
+								<li id="abdomen_contusion" ontouchend="oneTap_one_color_button(this)">Contusion</li>
+								<li id="abdomen_abrasion" ontouchend="oneTap_one_color_button(this)">Abrasion</li>
+								<li id="abdomen_puncture" ontouchend="oneTap_one_color_button(this)">Puncture</li>
+								<li id="abdomen_penetration" ontouchend="oneTap_one_color_button(this)" class="last">Penetration</li>
+								<li id="abdomen_bruises" ontouchend="oneTap_one_color_button(this)">Burn</li>
+								<li id="abdomen_tenderness" ontouchend="oneTap_one_color_button(this)">Tenderness</li>
+								<li id="abdomen_laceration" ontouchend="oneTap_one_color_button(this)">Laceration</li>
+								<li id="abdomen_swelling" ontouchend="oneTap_one_color_button(this)">Swelling</li>
+								<li id="abdomen_distended" ontouchend="oneTap_one_color_button(this)" class="last">Distended</li>
+								<li id="abdomen_rigid" ontouchend="oneTap_one_color_button(this)">Rigid</li>
+							</ul>
+							<ul class="edgetoedge noBorder">
+								<li class="sep fullWidth" ontouchend="toggleElement('#complaint_pelvic')">Pelvic Area</li>
+							</ul>
+							<ul  id="complaint_pelvic"class="grid5Column">
+								<li id="pelvic_deformities" ontouchend="oneTap_one_color_button(this)">Deformities</li>
+								<li id="pelvic_contusion" ontouchend="oneTap_one_color_button(this)">Contusion</li>
+								<li id="pelvic_abrasion" ontouchend="oneTap_one_color_button(this)">Abrasion</li>
+								<li id="pelvic_puncture" ontouchend="oneTap_one_color_button(this)">Puncture</li>
+								<li id="pelvic_penetration" ontouchend="oneTap_one_color_button(this)" class="last">Penetration</li>
+								<li id="pelvic_bruises" ontouchend="oneTap_one_color_button(this)">Burn</li>
+								<li id="pelvic_tenderness" ontouchend="oneTap_one_color_button(this)">Tenderness</li>
+								<li id="pelvic_laceration" ontouchend="oneTap_one_color_button(this)">Laceration</li>
+								<li id="pelvic_swelling" ontouchend="oneTap_one_color_button(this)">Swelling</li>
+								<li id="pelvic_crepitus" ontouchend="oneTap_one_color_button(this)" class="last">Crepitus</li>
+								<li id="pelvic_unstable" ontouchend="oneTap_one_color_button(this)">Unstable</li>
+							</ul>
+							<ul class="edgetoedge noBorder">
+								<li class="sep fullWidth" ontouchend="toggleElement('#complaint_llex')">Left Lower Extremities</li>
+							</ul>
+							<ul id="complaint_llex" class="grid5Column">
+								<li id="llex_deformities" ontouchend="oneTap_one_color_button(this)">Deformities</li>
+								<li id="llex_contusion" ontouchend="oneTap_one_color_button(this)">Contusion</li>
+								<li id="llex_abrasion" ontouchend="oneTap_one_color_button(this)">Abrasion</li>
+								<li id="llex_puncture" ontouchend="oneTap_one_color_button(this)">Puncture</li>
+								<li id="llex_penetration" ontouchend="oneTap_one_color_button(this)" class="last">Penetration</li>
+								<li id="llex_bruises" ontouchend="oneTap_one_color_button(this)">Burn</li>
+								<li id="llex_tenderness" ontouchend="oneTap_one_color_button(this)">Tenderness</li>
+								<li id="llex_laceration" ontouchend="oneTap_one_color_button(this)">Laceration</li>
+								<li id="llex_swelling" ontouchend="oneTap_one_color_button(this)">Swelling</li>
+								<li id="llex_crepitus" ontouchend="oneTap_one_color_button(this)" class="last">Crepitus</li>
+								<li id="llex_shortening" ontouchend="oneTap_one_color_button(this)">Shortening</li>
+							</ul>
+							<ul class="edgetoedge noBorder">
+								<li class="sep fullWidth" ontouchend="toggleElement('#complaint_rlex')">Right Lower Extremities</li>
+							</ul>
+							<ul id="complaint_rlex" class="grid5Column">
+								<li id="rlex_deformities" ontouchend="oneTap_one_color_button(this)">Deformities</li>
+								<li id="rlex_contusion" ontouchend="oneTap_one_color_button(this)">Contusion</li>
+								<li id="rlex_abrasion" ontouchend="oneTap_one_color_button(this)">Abrasion</li>
+								<li id="rlex_puncture" ontouchend="oneTap_one_color_button(this)">Puncture</li>
+								<li id="rlex_penetration" ontouchend="oneTap_one_color_button(this)" class="last">Penetration</li>
+								<li id="rlex_bruises" ontouchend="oneTap_one_color_button(this)">Burn</li>
+								<li id="rlex_tenderness" ontouchend="oneTap_one_color_button(this)">Tenderness</li>
+								<li id="rlex_laceration" ontouchend="oneTap_one_color_button(this)">Laceration</li>
+								<li id="rlex_swelling" ontouchend="oneTap_one_color_button(this)">Swelling</li>
+								<li id="rlex_crepitus" ontouchend="oneTap_one_color_button(this)" class="last">Crepitus</li>
+								<li id="rlex_shortening" ontouchend="oneTap_one_color_button(this)">Shortening</li>
+							</ul>
+							<ul class="edgetoedge noBorder">
+								<li class="sep fullWidth" ontouchend="toggleElement('#complaint_luex')">Left Upper Extremities</li>
+							</ul>
+							<ul id="complaint_luex" class="grid5Column">
+								<li id="luex_deformities" ontouchend="oneTap_one_color_button(this)">Deformities</li>
+								<li id="luex_contusion" ontouchend="oneTap_one_color_button(this)">Contusion</li>
+								<li id="luex_abrasion" ontouchend="oneTap_one_color_button(this)">Abrasion</li>
+								<li id="luex_puncture" ontouchend="oneTap_one_color_button(this)">Puncture</li>
+								<li id="luex_penetration" ontouchend="oneTap_one_color_button(this)" class="last">Penetration</li>
+								<li id="luex_bruises" ontouchend="oneTap_one_color_button(this)">Burn</li>
+								<li id="luex_tenderness" ontouchend="oneTap_one_color_button(this)">Tenderness</li>
+								<li id="luex_laceration" ontouchend="oneTap_one_color_button(this)">Laceration</li>
+								<li id="luex_swelling" ontouchend="oneTap_one_color_button(this)">Swelling</li>
+								<li id="luex_crepitus" ontouchend="oneTap_one_color_button(this)">Crepitus</li>
+							</ul>
+							<ul class="edgetoedge noBorder">
+								<li class="sep fullWidth" ontouchend="toggleElement('#complaint_ruex')">Right Upper Extremities</li>
+							</ul>
+							<ul id="complaint_ruex" class="grid5Column">
+								<li id="ruex_deformities" ontouchend="oneTap_one_color_button(this)">Deformities</li>
+								<li id="ruex_contusion" ontouchend="oneTap_one_color_button(this)">Contusion</li>
+								<li id="ruex_abrasion" ontouchend="oneTap_one_color_button(this)">Abrasion</li>
+								<li id="ruex_puncture" ontouchend="oneTap_one_color_button(this)">Puncture</li>
+								<li id="ruex_penetration" ontouchend="oneTap_one_color_button(this)" class="last">Penetration</li>
+								<li id="ruex_bruises" ontouchend="oneTap_one_color_button(this)">Burn</li>
+								<li id="ruex_tenderness" ontouchend="oneTap_one_color_button(this)">Tenderness</li>
+								<li id="ruex_laceration" ontouchend="oneTap_one_color_button(this)">Laceration</li>
+								<li id="ruex_swelling" ontouchend="oneTap_one_color_button(this)">Swelling</li>
+								<li id="ruex_crepitus" ontouchend="oneTap_one_color_button(this)" class="last">Crepitus</li>
+							</ul>
+							<ul class="edgetoedge noBorder">
+								<li class="sep fullWidth" ontouchend="toggleElement('#complaint_back')">Back</li>
+							</ul>
+							<ul id="complaint_back" class="grid5Column">
+								<li id="back_deformities" ontouchend="oneTap_one_color_button(this)">Deformities</li>
+								<li id="back_contusion" ontouchend="oneTap_one_color_button(this)">Contusion</li>
+								<li id="back_abrasion" ontouchend="oneTap_one_color_button(this)">Abrasion</li>
+								<li id="back_puncture" ontouchend="oneTap_one_color_button(this)">Puncture</li>
+								<li id="back_penetration" ontouchend="oneTap_one_color_button(this)" class="last">Penetration</li>
+								<li id="back_bruises" ontouchend="oneTap_one_color_button(this)">Burn</li>
+								<li id="back_tenderness" ontouchend="oneTap_one_color_button(this)">Tenderness</li>
+								<li id="back_laceration" ontouchend="oneTap_one_color_button(this)">Laceration</li>
+								<li id="back_swelling" ontouchend="oneTap_one_color_button(this)">Swelling</li>
+								<li id="back_crepitus" ontouchend="oneTap_one_color_button(this)" class="last">Crepitus</li>
+								<li id="back_step_off" ontouchend="oneTap_one_color_button(this)">Step-off</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</form>
+			<div id="procedures">
+				<div class="toolbar">
+					<h1>Procedures</h1>
+					<a class="back" href="#">Patient</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li class="arrow"><a href="#airwayProcedures">Airway</a></li>
+							<li class="arrow"><a href="#iv_io_list">IV/IO</a></li>                          	
+							<li class="arrow"><a href="#splinting_list">Splinting / Dressing</a></li>
+							<li class="arrow"><a href="#medication_proc_list">Medication</a></li>
+							<li class="arrow"><a href="#c_spine">Spinal Motion Restriction</a></li>
+							<li class="arrow"><a href="#in_out_list">IN / OUT</a></li>
+							<li class="arrow"><a href="#ecg_list">ECG</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div id="airwayProcedures">
+				<div class="toolbar">
+					<h1>Airway Procedures</h1>
+					<a class="back" href="#">Back</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li class="arrow"><a href="#airway_list">Basic Airway</a></li>
+							<li class="arrow"><a href="#invasive_airway">Invasive Airway</a></li>
+							<li class="arrow"><a href="#ventilator_list">Ventilator</a></li>
+							<li class="arrow"><a href="#cpap_bipap_list">CPAP/BiPAP</a></li>
+							<li class="arrow"><a href="#suction_list">Suction</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div id="airway_list">
+				<div class="toolbar">
+					<h1>Airway</h1>
+					<a class="back" href="#">Back</a>
+					<a class="add slideup" href="#airwayProcedure" ontouchend="resetCurrentRecord()">+</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="edgetoedge">
+							<li class="sep">Airway Procedures</li>
+						</ul>
+						<ul class="edgetoedge" id="airway_sorted">
+							<li id="airwayTemplate" class="entry list_sorted" style="display:none" >
+								<img class="unlock_line" src="images/img/disabled.png" />
+								<span class="airway_time">last</span>
+								<span class="delete" style="display:none">Delete</span>	
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<form id="airwayProcedure">
+				<div class="toolbar">
+					<h1>Airway</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label">Volume</span>
+								<div class="right_item">
+									<input placeholder="O2" type="number" id="airway_O2" class="small_input" name="airway_O2">
+									<span class="label margin5px">lpm</span>
+								</div>
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<span class="label margin10pxr" section="main">Basic Man</span>
+								<select name="basic_maneuvers" id="basic_maneuvers">
+									<option value="0">Basic Maneuvers</option>
+									<option value="1">Head Tilt/Chin Lift</option>
+									<option value="2">Jaw Thrust</option>
+									<option value="3">Modified Jaw Thrust</option>
+								</select>
+							</li>
+						</ul>
+						<ul class="individual">
+							<li>
+								<span class="label margin10pxr" section="main">OPA</span>
+								<select name="opa" id="opa">
+									<option value="0">OPA</option>
+									<option value="1">Size 50</option>
+									<option value="2">Size 60</option>
+									<option value="3">Size 70</option>
+									<option value="4">Size 80</option>
+									<option value="5">Size 90</option>
+									<option value="6">Size 100</option>
+								</select>
+							</li>
+							<li class="li_right">
+								<span class="label margin10pxr" section="main">NPA</span>
+								<select name="npa" id="npa">
+									<option value="0">NPA</option>
+									<option value="1">Size 24</option>
+									<option value="2">Size 26</option>
+									<option value="3">Size 28</option>
+									<option value="4">Size 30</option>
+									<option value="5">Size 32</option>
+									<option value="6">Size 34</option>
+								</select>
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<span class="label">BVM</span>
+								<input type="checkbox" class="onoff yes_no" id="bvm" name="bvm" ontouchend="element_Show_Hide(this, '#li_airway_rate')">
+							</li>
+							<li id="li_airway_rate">
+								<span class="label margin10pxr" section="main">Airway Rate</span>
+								<div class="right_item">
+									<input placeholder="Rate" type="number" id="airway_rate" class="small_input" name="airway_rate">
+									<span class="label margin5px">/min</span>
+								</div>
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<span class="label">Time</span>
+								<input type="text" name="airway_time" id="airway_time" class="mobiscroll"/>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</form>
+			<form id="invasive_airway">
+				<div class="toolbar">
+					<h1>Invasive Airway</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label">Pt Airway Secured</span>
+								<input type="checkbox" class="onoff yes_no" id="airway_secured" name="airway_secured" checked="checked">
+							</li>	
+							<li>
+								<span class="label">Device</span>
+								<select name="airway_device" class="margin5px" id="airway_device">
+									<option value="0">Device</option>
+									<option value="1">King Airway</option>
+									<option value="2">Combitube</option>
+									<option value="3">Endotracheal Tube</option>
+									<option value="4">LMA</option>
+								</select>
+								<div class="right">
+									<input placeholder="Size" type="number" id="airway_size" class="small_input" name="airway_size">
+								</div>
+							</li>	
+							<li>
+								<span class="label">Cuffed?</span>
+								<input type="checkbox" class="onoff yes_no margin10px" id="airway_cuffed" name="airway_cuffed" checked="checked" ontouchend="element_Show_Hide(this, '#div_cuff_inflation')">
+								<div id="div_cuff_inflation">
+									<input placeholder="Inflation" type="number" id="airway_cuff_inflation" class="small_input" name="airway_cuff_inflation">
+									<span class="label margin5px">mL</span>
+								</div>
+							</li>	
+							<li>
+								<div class="left">
+									<span class="label margin10pxr" section="main">Distance</span>
+									<input placeholder="Distance" type="number" id="airway_distance" class="small_input" name="airway_distance">
+									<span class="label margin5px">cm</span>
+								</div>
+								<input type="checkbox" class="onoff bvm_vented" id="airway_bvm" name="airway_bvm" checked="checked">
+							</li>
+							<li>
+								<span class="label">Attempts</span>
+								<div class="right">
+									<input placeholder="0" type="number" id="airway_attempts" class="small_input" name="airway_attempts">
+								</div>
+							</li>					
+						</ul>
+						<ul class="rounded">
+							<li>
+								<span class="label">Time</span>
+								<input type="text" name="invasive_airway_time" id="invasive_airway_time" class="mobiscroll"/>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</form>
+			<div id="ventilator_list">
+				<div class="toolbar">
+					<h1>Ventilator</h1>
+					<a class="back" href="#">Back</a>
+					<a class="add slideup" href="#vent" ontouchend="resetCurrentRecord()">+</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="edgetoedge">
+							<li class="sep">Ventilator Procedures</li>
+						</ul>
+						<ul class="edgetoedge" id="ventilator_sorted">
+							<li id="ventilatorTemplate" class="entry list_sorted" style="display:none" >
+								<img class="unlock_line" src="images/img/disabled.png" />
+								<span class="ventilator_time">last</span>
+								<span class="delete" style="display:none">Delete</span>	
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<form id="vent">
+				<div class="toolbar">
+					<h1>Ventilator Settings</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label">Patient Vented?</span>
+								<input type="checkbox" class="onoff yes_no" id="ventilator_vented" name="ventilator_vented"  ontouchend="element_Show_Hide(this, '#div_vented')">
+							</li>
+						</ul>
+						<div id="div_vented">
+							<ul class="rounded">
+								<li>
+									<span class="label">Control</span>
+									<input type="checkbox" class="longCheck pressure_volume" id="ventilator_control" name="ventilator_control" ontouchend="elements_Show_Hide(this, '#pressure_related', '#volume_related')">
+								</li>
+								<li>
+									<span class="label">Mode</span>
+									<input type="checkbox" class="longCheck simv_assist_ctrl" id="ventilator_simv" name="ventilator_simv"  ontouchend="indiv_Show_Hide(this, '#simv_related')">
+								</li>
+							</ul>
+							<ul class="individual">
+								<li>
+									<span class="label margin10pxr" section="main">Rate</span></br>
+									<input placeholder="Rate" type="number" id="ventilator_rate" class="small_input" name="ventilator_rate">
+									<span class="label margin5px">/min</span>
+								</li>
+								<li class="li_right">
+									<span class="label margin10pxr" section="main">Tidal volume</span></br>
+									<input placeholder="Tidal V" type="number" id="ventilator_tidal_vol" class="small_input" name="ventilator_tidal_vol">
+									<span class="label margin5px">/mL</span>
+								</li>
+								<li>
+									<span class="label margin10pxr" section="main">Insp Time</span></br>
+									<input placeholder="Insp Time" type="number" id="ventilator_insp_time" class="small_input" name="ventilator_insp_time">
+									<span class="label margin5px">sec</span>
+								</li>
+								<li class="li_right">
+									<span class="label margin10pxr" section="main">Ratio Insp/Exp</span></br>
+									<input placeholder="I" type="number" id="ventilator_i_ratio" class="very_small_input" name="ventilator_i_ratio">
+									<span class="label margin5px">:&nbsp;</span>
+									<input placeholder="E" type="number" id="ventilator_e_ratio" class="very_small_input" name="ventilator_e_ratio">
+									<span class="label margin5px">Ratio</span>
+								</li>
+								<li>
+									<span class="label margin10pxr" section="main">FiO2</span></br>
+									<input placeholder="FiO2" type="number" id="ventilator_fiO2" class="small_input" name="ventilator_fiO2">
+									<span class="label margin5px">%</span>
+								</li>
+								<li class="li_right">
+									<span class="label margin10pxr" section="main">PEEP</span></br>
+									<input placeholder="PEEP" type="number" id="ventilator_peep" class="small_input" name="ventilator_peep">
+									<span class="label margin5px">cm H2O</span>
+								</li>	
+								<li>
+									<span class="label margin10pxr" section="main">Sensitivity</span></br>
+									<input placeholder="Sensitivity" type="number" id="ventilator_sensitivity" class="small_input" name="ventilator_sensitivity">
+									<span class="label margin5px">L/min</span>
+								</li>
+								<div id="pressure_related">
+									<li class="li_right">
+										<span class="label margin10pxr" section="main">Expir P</span></br>
+										<input placeholder="Expir P" type="number" id="ventilator_expir_p" class="small_input" name="ventilator_expir_p">
+										<span class="label margin5px">cm H2O</span>
+									</li>
+									<li>
+										<span class="label margin10pxr" section="main">Expir tidal V</span></br>
+										<input placeholder="Exp Tidal V" type="number" id="ventilator_expir_tidal_v" class="small_input" name="ventilator_expir_tidal_v">
+										<span class="label margin5px">mL</span>
+									</li>
+									<li class="li_right">
+										<span class="label margin10pxr" section="main">Max inspir P</span></br>
+										<input placeholder="Max Insp P" type="number" id="ventilator_max_inspir_p" class="small_input" name="ventilator_max_inspir_p">
+										<span class="label margin5px">mL</span>
+									</li>
+								</div>
+								<div id="volume_related">
+									<li class="li_right">
+										<span class="label margin10pxr" section="main">Plateau P</span></br>
+										<input placeholder="Plateau P" type="number" id="ventilator_plateau_p" class="small_input" name="ventilator_plateau_p">
+										<span class="label margin5px">cm H2O</span>
+									</li>
+								</div>
+								<div id="simv_related">
+									<li>
+										<span class="label margin10pxr" section="main">P support</span></br>
+										<input placeholder="P Support" type="number" id="ventilator_p_support" class="small_input" name="ventilator_p_support">
+										<span class="label margin5px">cm H2O</span>
+									</li>
+								</div>
+							</ul>
+							<ul class="edgetoedge">
+								<li class="sep">Alarms</li>
+							</ul>
+							<ul class="individual">
+								<li>
+									<span class="label margin10pxr" section="main">Lim P high</span></br>
+									<input placeholder="High Pr Limit" type="number" id="ventilator_limit_p_high" class="small_input" name="ventilator_limit_P_high">
+									<span class="label margin5px">cm H2O</span>
+								</li>
+								<li class="li_right">
+									<span class="label margin10pxr" section="main">Low P limit</span></br>
+									<input placeholder="Low Pr Limit" type="number" id="ventilator_limit_p_low" class="small_input" name="ventilator_limit_P_low">
+									<span class="label margin5px">cm H2O</span>
+								</li>
+								<li>
+									<span class="label margin10pxr" section="main">Low V min</span></br>
+									<input placeholder="Low Min Vol" type="number" id="ventilator_low_min_v" class="small_input" name="ventilator_low_min_v">
+									<span class="label margin5px">L</span>
+								</li>
+							</ul>
+						</div>
+						<ul class="rounded">
+							<li>
+								<span class="label">Time</span>
+								<input type="text" name="ventilator_time" id="ventilator_time" class="mobiscroll"/>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</form>
+			<div id="cpap_bipap_list">
+				<div class="toolbar">
+					<h1>CPAP / BiPAP</h1>
+					<a class="back" href="#">Back</a>
+					<a class="add slideup" href="#cpap_bipap" ontouchend="resetCurrentRecord()">+</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="edgetoedge">
+							<li class="sep">CPAP / BiPAP Procedures</li>
+						</ul>
+						<ul class="edgetoedge" id="cpap_bipap_sorted">
+							<li id="cpap_bipapTemplate" class="entry list_sorted" style="display:none" >
+								<img class="unlock_line" src="images/img/disabled.png" />
+								<span class="cpap_bipap_time">last</span>
+								<span class="delete" style="display:none">Delete</span>	
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<form id="cpap_bipap">
+				<div class="toolbar">
+					<h1>CPAP / BiPAP</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li><span class="label">Device</span>
+								<input type="checkbox" class="longCheck cpap_bipap" id="cpap_device" name="cpap_device" checked="checked">
+							</li>
+							<li>
+								<input placeholder="Size" type="number" id="cpap_bipap_size" class="row4_input" name="cpap_bipap_size">
+								<input placeholder="FiO2" type="number" id="cpap_bipap_fiO2" class="row4_input" name="cpap_bipap_fiO2">
+								<input placeholder="PEEP" type="number" id="cpap_bipap_peep" class="row4_input" name="cpap_bipap_peep">
+								<input placeholder="Pressure" type="number" id="cpap_bipap_pressure" class="row4_input" name="cpap_bipap_pressure">
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<span class="label">Time</span>
+								<input type="text" name="cpap_bipap_time" id="cpap_bipap_time" class="mobiscroll"/>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</form>
+			<div id="suction_list">
+				<div class="toolbar">
+					<h1>Suction</h1>
+					<a class="back" href="#">Back</a>
+					<a class="add slideup" href="#suction" ontouchend="resetCurrentRecord()">+</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="edgetoedge">
+							<li class="sep">Suction Procedures</li>
+						</ul>
+						<ul class="edgetoedge" id="suction_sorted">
+							<li id="suctionTemplate" class="entry list_sorted" style="display:none" >
+								<img class="unlock_line" src="images/img/disabled.png" />
+								<span class="suction_time">last</span>
+								<span class="delete" style="display:none">Delete</span>	
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<form id="suction">
+				<div class="toolbar">
+					<h1>Suction</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label">Suction</span>
+								<input type="checkbox" class="onoff yes_no" id="suction_suction" name="suction_suction" checked="checked" ontouchend="element_Show_Hide(this, '#ul_suction_related')">
+							</li>
+						</ul>
+						<ul class="rounded" id="ul_suction_related">
+							<li>
+								<span class="label">Suction Duration</span>
+								<div>
+									<input placeholder="" type="number" id="suction_duration" class="small_input" name="suction_duration">
+									<span class="label right margin5px">Sec</span>
+								</div>
+							</li>
+							<li>
+								<span class="label">Amount Suctioned</span>
+								<div>
+									<input placeholder="" type="number" id="suction_amount" class="small_input" name="suction_amount">
+									<span class="label right margin5px">mL</span>
+								</div>
+							</li>
+							<li>
+								<span class="label">Tip Used</span>
+								<select name="suction_tip" class="margin5px" id="suction_tip">
+									<option value="0">Tip Used</option>
+									<option value="1">Yaunker</option>
+									<option value="2">French</option>
+								</select>
+							</li>
+							<li>
+								<span class="label">Tip Size</span>
+								<div>
+									<input placeholder="" type="number" id="suction_size" class="small_input" name="suction_size">
+									<span class="label right margin5px">mL</span>
+								</div>
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<span class="label">Time</span>
+								<input type="text" name="suction_time" id="suction_time" class="mobiscroll"/>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</form>
+			<div id="iv_io_list">
+				<div class="toolbar">
+					<h1>IV / IO</h1>
+					<a class="back" href="#">Back</a>
+					<a class="add slideup" href="#iv_io" ontouchend="resetCurrentRecord()">+</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="edgetoedge">
+							<li class="sep">IV / IO Procedures</li>
+						</ul>
+						<ul class="edgetoedge" id="iv_io_sorted">
+							<li id="iv_ioTemplate" class="entry list_sorted" style="display:none" >
+								<img class="unlock_line" src="images/img/disabled.png" />
+								<span class="iv_io_time">last</span>
+								<span class="delete" style="display:none">Delete</span>	
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<form id="iv_io">
+				<div class="toolbar">
+					<h1>IV / IO</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label" section="main">Site</span>
+								<select name="iv_io_site" class="margin5px" id="iv_io_site">
+									<option section="full" value="0">Site</option>
+									<option value="1">Hand</option>
+									<option value="2">Wrist</option>
+									<option value="3">Forearm</option>
+									<option value="4">AC</option>
+									<option value="5">Upper Arm</option>
+									<option value="6">External Jugular</option>
+									<option value="7">Tibial Tuberosity</option>
+								</select>
+								<input type="checkbox" class="onoff left_right" id="iv_io_site_side" name="iv_io_site_side" checked="checked">
+							</li>
+							<li>
+								<span class="label">Gauge</span>
+								<select name="iv_io_gauge" class="margin5px" id="iv_io_gauge">
+									<option value="0">24</option>
+									<option value="1">22</option>
+									<option value="2">20</option>
+									<option value="3">18</option>
+									<option value="4">16</option>
+									<option value="5">14</option>
+									<option value="6">IO 18</option>
+								</select>
+							</li>
+							<li><span class="label">Attempts</span>
+								<div class="right_item">
+									<input placeholder="0" type="number" id="iv_io_attempts" class="small_input" name="iv_io_attempts">
+								</div>
+							</li>
+							<li>
+								<span class="label">Successful</span>	
+								<input type="checkbox" class="onoff yes_no" id="iv_io_success" name="iv_io_success" checked="checked">
+							</li>
+							<li>
+								<span class="label">Fluid</span>
+								<select name="iv_io_fluid" class="margin5px" id="iv_io_fluid"  onchange="select_show_hide(this, 5, '#li_fluid_related')">
+									<option value="0">Normal Saline</option>
+									<option value="1">Lactate Ringers</option>
+									<option value="2">D5W</option>
+									<option value="3">D10W</option>
+									<option value="4">2/3 &amp; 1/3</option>
+									<option value="5">Other</option>
+								</select>
+							</li>
+							<li id="li_fluid_related">
+								<input placeholder="Other" type="text" id="fluid_other" name="fluid_other">
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<span class="label">Time</span>
+								<input type="text" name="iv_io_time" id="iv_io_time" class="mobiscroll"/>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</form>
+			<div id="splinting_list">
+				<div class="toolbar">
+					<h1>Splinting</h1>
+					<a class="back" href="#">Back</a>
+					<a class="add slideup" href="#splinting" ontouchend="resetCurrentRecord()">+</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="edgetoedge">
+							<li class="sep">Splinting Procedures</li>
+						</ul>
+						<ul class="edgetoedge" id="splinting_sorted">
+							<li id="splintingTemplate" class="entry list_sorted" style="display:none" >
+								<img class="unlock_line" src="images/img/disabled.png" />
+								<span class="splinting_time">last</span>
+								<span class="delete" style="display:none">Delete</span>	
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<form id="splinting">
+				<div class="toolbar">
+					<h1>Splinting / Dressing</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label">Location</span>
+								<select name="splinting_location" class="margin5px" id="splinting_location">
+									<option value="0">Head</option>
+									<option value="1">Arm</option>
+									<option value="2">Hand</option>
+									<option value="3">Leg</option>
+									<option value="4">Ankle</option>
+								</select>
+								<input type="checkbox" class="onoff left_right" id="splinting_side" name="splinting_side" checked="checked">
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li class="sep">Pulse, Sensation, Movement</li>
+							<li>
+								<span class="label">Prior</span>
+								<input type="checkbox" class="onoff yes_no" id="splinting_prior" name="splinting_prior" checked="checked">
+							</li>
+							<li>
+								<span class="label">Post</span>
+								<input type="checkbox" class="onoff yes_no" id="splinting_post" name="splinting_post" checked="checked">
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<span class="label">Traction Applied</span>
+								<input type="checkbox" class="onoff yes_no" id="traction_applied" name="traction_applied" checked="checked">
+							</li>
+							<li>
+								<span class="label">Type</span>
+								<select name="type_splint" class="margin5px" id="type_splint" onchange="select_show_hide(this, 7, '#li_splint_type_other')">
+									<option value="0">Vacuum Splint</option>
+									<option value="1">Sam Splint</option>
+									<option value="2">Padded Board</option>
+									<option value="3">Air Splint</option>
+									<option value="4">Gauze</option>
+									<option value="5">Pressure Bandage</option>
+									<option value="6">Tourniquet</option>
+									<option value="7">Other</option>
+								</select>
+							</li>
+							<li id="li_splint_type_other">
+								<input placeholder="Other" type="text" id="type_splint_other" name="type_splint_other">
+							</li>
+							<li>
+								<span class="label">Position</span>
+								<select name="splinting_position" class="margin5px" id="splinting_position" onchange="select_show_hide(this, 3, '#li_splint_position_other')">
+									<option value="0">Position Found</option>
+									<option value="1">Position of Function</option>
+									<option value="2">Anatomic</option>
+									<option value="3">Other</option>
+								</select>
+							</li>
+							<li id="li_splint_position_other">
+								<input placeholder="Other" type="text" id="splinting_position_other" name="splinting_position_other">
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<span class="label">Time</span>
+								<input type="text" name="splinting_time" id="splinting_time" class="mobiscroll"/>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</form>
+			<div id="medication_proc_list">
+				<div class="toolbar">
+					<h1>Medication</h1>
+					<a class="back" href="#">Back</a>
+					<a class="add slideup" href="#medication" ontouchend="resetCurrentRecord()">+</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="edgetoedge">
+							<li class="sep">Medication Procedures</li>
+						</ul>
+						<ul class="edgetoedge" id="medication_sorted">
+							<li id="medicationTemplate" class="entry list_sorted" style="display:none" >
+								<img class="unlock_line" src="images/img/disabled.png" />
+								<span class="medication_time">last</span>
+								<span class="delete" style="display:none">Delete</span>	
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>			
+			<form id="medication">
+				<div class="toolbar">
+					<h1>Medication Admin</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label">Medication Name</span>
+								<input type="checkbox" class="longCheck generic_brand" id="medication_name_generic" name="medication_name_generic" checked="checked" ontouchend="switchSelectGeneric()">
+							</li>
+							<li>
+								<span class="label">Med</span>
+								<select name="medication_medication" class="margin5px" id="medication_medication" onchange="select_show_hide(this, 0, '#li_medication_other')">
+									<option value="0">Medication</option>
+								</select>
+							</li>
+							<li id="li_medication_other">
+								<input placeholder="Other medication" type="text" id="medication_other" name="medication_other">
+							</li>
+							<li>
+								<span class="label">Dose</span>
+								<div class="middle_item">
+									<input placeholder="Dose" type="number" id="medication_dose" class="small_input" name="medication_dose">
+								</div>
+								<select name="medication_dose_unit" class="margin5px" id="medication_dose_unit">
+									<option value="0">mg</option>
+									<option value="1">mcg</option>
+									<option value="2">G</option>
+									<option value="3">units</option>
+									<option value="4">L</option>							
+								</select>
+							</li>
+							<li>
+								<span class="label">Route</span>
+								<select name="medication_route" class="margin5px" id="medication_route" onchange="select_show_hide(this, 16, '#li_route_other_related')">
+									<option value="0">SIVP</option>
+									<option value="1">IVP</option> 
+									<option value="2">RIVP</option> 
+									<option value="3">IM</option> 
+									<option value="4">SQ</option> 
+									<option value="5">SL</option> 
+									<option value="6">PO</option> 
+									<option value="7">Buccal</option> 
+									<option value="8">Rectal</option> 
+									<option value="9">Neb</option> 
+									<option value="10">Ocular</option> 
+									<option value="11">Nasal</option> 
+									<option value="12">Intra</option> 	
+									<option value="13">Lingual</option> 
+									<option value="14">Percutanious</option> 
+									<option value="15">Transdermal</option> 
+									<option value="16">Other</option>
+								</select>
+							</li>
+							<li id="li_route_other_related">
+								<input placeholder="Other" type="text" id="medication_route_other" name="medication_route_other">
+							</li>
+							<li>
+								<span class="label margin10pxr" section="main">Indic</span>
+								<input placeholder="Indication" type="text" id="medication_indication" name="medication_indication">
+							</li>
+							<li>
+								<span class="label">Admin by</span>
+								<select name="medication_admin_by" class="margin5px" id="medication_admin_by" onchange="select_show_hide(this, 2, '#li_admin_other_related')">
+									<option value="0">Self</option>
+									<option value="1">Partner</option>
+									<option value="2">Other</option>
+								</select>
+							</li>
+							<li id="li_admin_other_related">
+								<input placeholder="Other" type="text" id="medication_admin_other" name="medication_admin_other">
+							</li>
+							<li>
+								<span class="label">Same Dose</span>
+								<div class="right_item">
+									<input placeholder="0" type="number" id="medication_same_dose" class="small_input" name="medication_same_dose">
+									<span class="label margin5px">Times</span>
+								</div>
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<span class="label">Time</span>
+								<input type="text" name="medication_time" id="medication_time" class="mobiscroll"/>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</form>
+			<form id="c_spine">
+				<div class="toolbar">
+					<h1>SMR</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label">Manual C-Spine?</span>
+								<input type="checkbox" class="onoff yes_no" id="manual_c_spine" name="manual_c_spine" checked="checked">
+							</li>
+							<li>
+								<span class="label">C-Collar</span>
+								<input type="checkbox" class="onoff yes_no" id="c_collar" name="c_collar" checked="checked" ontouchend="element_Show_Hide(this, '#li_collar_related')">
+							</li>
+							<li id="li_collar_related">
+								<span class="label">Size</span>
+								<select class="margin5px" name="c_spine_size" id="c_spine_size">
+									<option value="0">Size</option>
+									<option value="1">No Neck</option>
+									<option value="2">Small</option>
+									<option value="3">Regular</option>
+									<option value="4">Tall</option>					
+								</select>
+							</li>
+							<li>
+								<span class="label">Back Board</span>
+								<select class="margin5px" name="c_spine_back_board" id="c_spine_back_board">
+									<option value="0">Back Board</option>
+									<option value="1">Long Board</option>
+									<option value="2">Oregon Spine Splint</option>
+									<option value="3">Scoop Stretcher</option>
+									<option value="4">None</option>
+								</select>
+							</li>
+							<li>
+								<span class="label">Transf By</span>
+								<select class="margin5px" name="c_spine_transfer" id="c_spine_transfer">
+									<option value="0">Transferred By</option>
+									<option value="1">Log Roll</option>
+									<option value="2">Scoop Stretcher</option>
+									<option value="3">Pt Sit Down</option>
+									<option value="4">Standing Take Down</option>
+									<option value="5">Direct Lift</option>
+									<option value="6">KED</option>
+								</select>
+							</li>
+							<li>
+								<span class="label">Secured With</span>
+								<select class="margin5px" name="c_spine_Secured" id="c_spine_Secured">
+									<option value="0">Secured With</option>
+									<option value="1">Belts</option>
+									<option value="2">Spider Straps</option>
+									<option value="3">Webbing</option>
+									<option value="4">Triangular Bandages</option>
+								</select>
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<span class="label">Time</span>
+								<input type="text" name="c_spine_time" id="c_spine_time" class="mobiscroll"/>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</form>
+			<div id="in_out_list">
+				<div class="toolbar">
+					<h1>IN'S / OUT'S</h1>
+					<a class="back" href="#">Back</a>
+					<a class="add slideup" href="#in_out" ontouchend="resetCurrentRecord()">+</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="edgetoedge">
+							<li class="sep">IN'S / OUT'S</li>
+						</ul>
+						<ul class="edgetoedge" id="in_out_sorted">
+							<li id="in_outTemplate" class="entry list_sorted" style="display:none" >
+								<img class="unlock_line" src="images/img/disabled.png" />
+								<span class="in_out_time">last</span>
+								<span class="delete" style="display:none">Delete</span>	
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>	
+			<form id="in_out">
+				<div class="toolbar">
+					<h1>IN'S / OUT'S</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<input type="checkbox" class="longCheck intake_outtake" id="in_out_intake" name="in_out_intake" checked="checked" ontouchend="show_hide_intake()">
+							</li>
+						</ul>
+						<ul class="rounded">
+							<div id="intakeDiv">
+								<li>
+									<span class="label">Volume In</span>
+									<div class="right">
+										<input placeholder="0" type="number" id="intake_volume" class="small_input" name="intake_volume">
+										<span class="label margin5px">mL</span>
+									</div>
+								</li>
+								<li>
+									<span class="label">Substance In</span>
+									<select class="margin5px" name="intake_substance" id="intake_substance"  onchange="select_show_hide(this, 6, '#li_intake_other_related')">
+										<option value="0">Select Substance</option>
+										<option value="1">Normal Saline</option>
+										<option value="2">Lactated Ringers</option>
+										<option value="3">D5W</option>
+										<option value="4">D10W</option>
+										<option value="5">2/3 &amp; 1/3</option>
+										<option value="6">Other</option>
+									</select>
+								</li>
+								<li id="li_intake_other_related">
+									<input placeholder="Other" type="text" id="intake_other" name="intake_other">
+								</li>
+							</div>
+							<div id="outtakeDiv">
+								<li>
+									<span class="label">Volume Out</span>
+									<div class="right">
+										<input placeholder="0" type="number" id="outtake_volume" class="small_input" name="outtake_volume">
+										<span class="label margin5px">mL</span>
+									</div>
+								</li>
+								<li>
+									<span class="label">Substance Out</span>
+									<select class="margin5px" name="outtake_substance" id="outtake_substance"  onchange="select_show_hide(this, 4, '#li_outtake_other_related')">
+										<option value="0">Select Substance</option>
+										<option value="1">Urine</option>
+										<option value="2">Vomit</option>
+										<option value="3">Blood</option>
+										<option value="4">Other</option>
+									</select>
+								</li>
+								<li id="li_outtake_other_related">
+									<input placeholder="Other" type="text" id="outtake_other" name="outtake_other">
+								</li>
+							</div>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<span class="label">Time</span>
+								<input type="text" name="in_out_time" id="in_out_time" class="mobiscroll"/>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</form>
+			<div id="ecg_list">
+				<div class="toolbar">
+					<h1>ECG</h1>
+					<a class="back" href="#">Back</a>
+					<a class="add slideup" href="#ecg" ontouchend="resetCurrentRecord()">+</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="edgetoedge">
+							<li class="sep">ECG Procedures</li>
+						</ul>
+						<ul class="edgetoedge" id="ecg_sorted">
+							<li id="ecgTemplate" class="entry list_sorted" style="display:none" >
+								<img class="unlock_line" src="images/img/disabled.png" />
+								<span class="ecg_time">last</span>
+								<span class="delete" style="display:none">Delete</span>	
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>	
+			<form id="ecg">
+				<div class="toolbar">
+					<h1>ECG</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label">Test</span>
+								<input type="checkbox" class="longCheck lead312" id="leads_nb" name="leads_nb">
+							</li>
+							<li>
+								<span class="label" section="main">Rhythm</span>
+								<select name="rhythm" class="margin5px" id="rhythm">
+									<option value="0" section="full">Rhythm</option>
+									<option value="1">Sinus</option>
+									<option value="2">Sinus Tachycardia</option>
+									<option value="3">Sinus Bradycardia</option>
+									<option value="4">Sinus Arrhythmia</option>
+									<option value="5">Atrial Tachycardia</option>
+									<option value="6">A-Fib</option>
+									<option value="7">A-Fib w/ SVR</option>
+									<option value="8">A-Fib w/ RVR</option>
+									<option value="9">A-Flutter</option>
+									<option value="10">A-Flutter w/ variable block</option>
+									<option value="11">SVT</option>
+									<option value="12">Junctional</option>
+									<option value="13">Accelerated Junctional</option>
+									<option value="14">Junctional Tachycardia</option>
+									<option value="15">1st Degree Block</option>
+									<option value="16">2nd Degree Block type 1</option>
+									<option value="17">2nd Degree Block type 2</option>
+									<option value="18">3rd Degree Block</option>
+									<option value="19">Ventricular</option>
+									<option value="20">Accelerated Ventricular</option>
+									<option value="21">V-Tach</option>
+									<option value="22">V-Fib</option>
+								</select>
+							</li>
+							<li><span class="label">Regular?</span>
+									<input type="checkbox" class="onoff yes_no" id="ecg_regular" name="ecg_regular" checked="checked">
+							</li>
+							<li>
+								<div class="half">
+									<span class="label">BBB?</span>
+									<input type="checkbox" class="onoff left_right" id="bbb_side" name="bbb_side" checked="checked">								
+								</div>
+								<input type="checkbox" class="margin5px onoff yes_no" id="bbb" name="bbb" checked="checked" ontouchend="element_Show_Hide(this, '#bbb_side')">
+							</li>
+							<li><span class="label">ST Changes?</span>
+								<input type="checkbox" class="onoff yes_no" id="st_changes" name="st_changes" checked="checked" ontouchend="element_Show_Hide(this, '#div_ST_related')">
+							</li>
+						</ul>
+						<div id="div_ST_related">
+							<ul class="grid4Column">
+								<li id="ecg_i" ontouchend="oneTap_button(this)">I</li>
+								<li id="ecg_avr" ontouchend="oneTap_button(this)">aVr</li>
+								<li id="ecg_v1" ontouchend="oneTap_button(this)">V1</li>
+								<li id="ecg_v4" ontouchend="oneTap_button(this)">V4</li>
+							</ul>
+							<ul class="grid4Column">
+								<li id="ecg_ii" ontouchend="oneTap_button(this)">II</li>
+								<li id="ecg_avl" ontouchend="oneTap_button(this)">aVL</li>
+								<li id="ecg_v2" ontouchend="oneTap_button(this)">V2</li>
+								<li id="ecg_v5" ontouchend="oneTap_button(this)">V5</li>
+							</ul>
+							<ul class="grid4Column">
+								<li id="ecg_iii" ontouchend="oneTap_button(this)">III</li>
+								<li id="ecg_avf" ontouchend="oneTap_button(this)">aVf</li>
+								<li id="ecg_v3" ontouchend="oneTap_button(this)">V3</li>
+								<li id="ecg_v6" ontouchend="oneTap_button(this)">V6</li>					
+							</ul>
+							<ul class="basic">
+								<li><img src="images/img/disabled.png"/>Tap Once for Depression</li>
+								<li><img src="images/img/enabled.png"/>Tap Twice for Elevation</li>
+								<li>Tap Once to Reset the button</li>
+							</ul>
+						</div>
+						<ul class="rounded">
+							<li>           	
+								<span class="label">PAC's</span>
+								<input type="checkbox" class="onoff yes_no" id="ecg_pacs" name="ecg_pacs" checked="checked">
+							</li>
+							<li>	
+								<span class="label">PVC's</span>
+								<input type="checkbox" class="onoff yes_no" id="ecg_pvcs" name="ecg_pvcs" checked="checked">
+							</li>
+						</ul>
+						<ul class="individual">
+							<li class="pictureLink" id="ecgPhotoTake" onclick="takePicture('ecgImage')" >Attach Photo</li>
+							<li class="nopictureLink li_right" id="ecgPhotoRemove" onclick="removePicture('ecgImage')" >No Photo</li>
+						</ul>
+						<img class="pictureHidden" id="ecgImage" src="" />
+						<ul class="rounded">
+							<li>
+								<span class="label">Time</span>
+								<input type="text" name="ecg_time" id="ecg_time" class="mobiscroll"/>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</form>
+			<form id="signatures">
+				<div class="toolbar">
+					<h1>Signatures</h1>
+					<a class="actionButton" ontouchend="saveSignatures()">Done</a>
+					<a class="cancel">Cancel</a>
+				</div>
+				<div class="bar" id="signaturebar">
+					<input type="radio" name="sig_practitioner_link" id="sig_practitioner_link" title="Practitioner" ontouchend="SignatureToggle('practitioner')" checked />
+					<input type="radio" name="sig_patient_link" id="sig_patient_link" title="Patient" ontouchend="SignatureToggle('patient')"/>
+					<input type="radio" name="sig_HospRepr_link" id="sig_HospRepr_link" title="Hosp Repr" ontouchend="SignatureToggle('hospRepr')"/>
+					<input type="radio" name="sig_witness_link" id="sig_witness_link" title="Witness" ontouchend="SignatureToggle('witness')"/>
+				</div>
+				<ul class="rounded" id="sig_practitioner_ul">
+					<li>
+						<span class="label margin10pxr" section="main">Pract</span>
+						<input placeholder="Practitioner Name" type="text" name="sigPractitionerName" id="sigPractitionerName">
+					</li>
+					<li>
+						<div class="sigContainer">
+							<canvas class="sigCanvas" id="sigCanvasPractitioner" width="280" height="100"></canvas>
+						</div>
+					</li>
+				</ul>
+				<ul class="rounded" id="sig_patient_ul">
+					<li>
+						<span class="label margin10pxr" section="main">Patient</span>
+						<input placeholder="Patient Name" type="text" name="sigPatientName" id="sigPatientName">
+					</li>
+					<li>
+						<div class="sigContainer" id="sigPatient">
+							<canvas class="sigCanvas" id="sigCanvasPatient" width="280" height="100"></canvas>
+						</div>
+					</li>
+					<li>
+						<span class="label">Pt unable to sign</span>
+						<input type="checkbox" class="onoff yes_no" id="unableToSign" name="unableToSign" checked="checked" ontouchend="element_Show_Hide(this, '#li_signReason')">
+					</li>
+					<li id="li_signReason">
+						<select name="unableToSignReason" id="unableToSignReason">
+							<option value="0" selected="selected">Reason</option>
+							<option value="1">Injury</option>
+							<option value="2">Level of Consciousness</option>
+							<option value="3">Severity of Illness</option>
+							<option value="4">Pt Restrained</option>
+							<option value="5">Pt Unwilling</option>
+						</select>
+					</li>
+				</ul>
+				<ul class="rounded" id="sig_HospRepr_ul">
+					<li>
+						<span class="label margin10pxr" section="main">Hosp Repr</span>
+						<input placeholder="Hospital Representative Name" type="text" name="sigHospReprName" id="sigHospReprName">
+					</li>
+					<li>
+						<div class="sigContainer" id="sigHospRepr">
+							<canvas class="sigCanvas" id="sigCanvasHospRepr" width="280" height="100"></canvas>
+						</div>
+					</li>
+				</ul>
+				<ul class="rounded" id="sig_witness_ul">
+					<li>
+						<span class="label margin10pxr" section="main">Witness</span>
+						<input placeholder="Witness Name" type="text" name="sigWitnessName" id="sigWitnessName">
+					</li>
+					<li>
+						<div class="sigContainer" id="sigWitness">
+							<canvas class="sigCanvas" id="sigCanvasWitness" width="280" height="100"></canvas>
+						</div>
+					</li>
+				</ul>
+				<ul class="individual">
+					<li class="arrow"><a ontouchend="clearCanvas()">Clear Signature</a></li>
+					<li class="arrow li_right"><a ontouchend="clearAllCanvas()">Clear all Signatures</a></li>
+					<li class="arrow"><a ontouchend="saveSignatures('#no_transport')">No Transport</a></li>
+				</ul>
+			</form>
+			<form id="call_info">
+				<div class="toolbar">
+					<h1>Call Info</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+					<a class="button nextToCancel" ontouchend="saveCallInfo();redirect('#no_transport', 'swap')">No Transport</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label">Attendant 1</span>
+								<select class="margin5px" name="call_info_attendant1" id="call_info_attendant1"  onchange="select_show_hide(this, 1, '#li_attendant1_other')">
+								</select>
+							</li>
+							<li id="li_attendant1_other">
+									<input placeholder="Other" type="text" id="call_info_attendant1_other" name="call_info_attendant1_other">
+							</li>
+							<li>
+								<span class="label">Attendant 2</span>
+								<select class="margin5px" name="call_info_attendant2" id="call_info_attendant2"  onchange="select_show_hide(this, 1, '#li_attendant2_other')">
+								</select>
+							</li>
+							<li id="li_attendant2_other">
+								<input placeholder="Other" type="text" id="call_info_attendant2_other" name="call_info_attendant2_other">
+							</li>
+							<li>
+								<span class="label">Driver</span>
+								<select class="margin5px" name="call_info_driver" id="call_info_driver"  onchange="select_show_hide(this, 1, '#li_driver_other')">
+								</select>
+							</li>
+							<li id="li_driver_other">
+								<input placeholder="Other" type="text" id="call_info_driver_other" name="call_info_driver_other">
+							</li>
+							<li>
+								<div class="left_item">
+									<input placeholder="Unit #" class="half_input" id="call_info_unit_nb" name="call_info_unit_nb">
+								</div>
+								<div class="right_item">
+									<input placeholder="Run #" type="number" class="half_input" id="call_info_run_nb" name="call_info_run_nb">
+								</div>
+							</li>
+							<li>
+								<span class="label margin10pxr" section="main">Respond to</span>
+								<input placeholder="Respond To" type="text" id="call_info_respond_to" name="call_info_respond_to">
+							</li>
+						</ul>
+						<ul class="edgetoedge">
+							<li class="sep">Milage</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<div class="left_item">
+									<input placeholder="Start" type="tel" class="half_input" id="call_info_milage_start" name="call_info_milage_start">
+								</div>
+								<div class="right_item">
+									<input placeholder="End" type="tel" class="half_input" id="call_info_milage_end" name="call_info_milage_end">
+								</div>
+							</li>
+						</ul>
+						<ul class="edgetoedge">
+							<li class="sep">Code</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<div class="left_item">
+									<input placeholder="En Route" class="half_input" id="call_info_code_route" name="call_info_code_route">
+								</div>
+								<div class="right_item">
+									<input placeholder="Return" class="half_input" id="call_info_code_return" name="call_info_code_return">
+								</div>
+							</li>
+							<li>
+								<span class="label margin10pxr" section="main">Transp to</span>
+								<input placeholder="Transported To" type="text" id="call_info_transported_to" name="call_info_transported_to">
+							</li>
+							<li>
+								<span class="label margin10pxr" section="main">Transp Pos</span>
+								<select name="call_info_transport_position" id="call_info_transport_position" >
+									<option value="0">Transport Position</option>
+									<option value="1">Sitting</option>
+									<option value="2">Semi-Sitting</option>
+									<option value="3">Prone</option>
+									<option value="4">Supine</option>
+									<option value="5">Fowlers</option>
+									<option value="6">Semi-Fowlers</option>
+									<option value="7">Position of comfort</option>
+								</select>
+							</li>
+						</ul>
+						<ul class="edgetoedge">
+							<li class="sep">Times</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<input placeholder="Notified" type="text" name="call_info_time_notified" id="call_info_time_notified" class="mobiscroll"/>
+								<input placeholder="En route" type="text" name="call_info_time_route" id="call_info_time_route" class="mobiscroll"/>
+							</li>
+							<li>
+								<input placeholder="On scene" type="text" name="call_info_time_on_scene" id="call_info_time_on_scene" class="mobiscroll"/>
+								<input placeholder="Depart scene" type="text" name="call_info_time_depart_scene" id="call_info_time_depart_scene" class="mobiscroll"/>
+							</li>
+							<li>
+								<input placeholder="Destination" type="text" name="call_info_time_destination" id="call_info_time_destination" class="mobiscroll"/>
+								<input placeholder="Transfer" type="text" name="call_info_time_transfer" id="call_info_time_transfer" class="mobiscroll"/>
+							</li>
+							<li>
+								<input placeholder="Back service" type="text" name="call_info_time_back_service" id="call_info_time_back_service" class="mobiscroll"/>
+								<input placeholder="Pt contact" type="text" name="call_info_time_patient_contact" id="call_info_time_patient_contact" class="mobiscroll"/>
+							</li>
+						</ul>
+						<ul class="edgetoedge">
+							<li class="sep">PPE Used</li>
+						</ul>
+						<ul class="grid5Column" id="ppeButtons">
+							<li id="ppe_gloves" ontouchend="oneTap_one_color_button(this)">Gloves</li>
+							<li id="ppe_eye_protection" ontouchend="oneTap_one_color_button(this)">Eye Protection</li>
+							<li id="ppe_reflective_gear" ontouchend="oneTap_one_color_button(this)">Reflective Gear</li>
+							<li id="ppe_isolation_gear" ontouchend="oneTap_one_color_button(this)">Isolation Gear</li>
+							<li id="ppe_mask" ontouchend="oneTap_one_color_button(this)">Mask</li>
+						</ul>
+						<ul class="edgetoedge noBorder">
+							<li class="sep fullWidth">Determinant</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<div class="left_item">
+									<input placeholder="Det 1" type="number" class="small_input" id="call_info_det1" name="call_info_det1">	
+										</div>
+								<select class="margin5px" name="call_info_det2" id="call_info_det2">
+									<option value="0">Det2</option>
+									<option value="1">A</option>
+									<option value="2">B</option>
+									<option value="3">C</option>
+									<option value="4">D</option>
+									<option value="5">E</option>
+									<option value="6">Omega</option>
+								</select>
+								<div class="right_item">
+									<input placeholder="Det 3" class="small_input" id="call_info_det3" name="call_info_det3"
+										</div>
+										</li>
+						</ul>
+						<ul class="edgetoedge noBorder">
+							<li class="sep fullWidth">Assistance</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<span class="label margin10pxr" section="main">A Given By</span>
+								<select name="call_info_assistance" id="call_info_assistance" onchange="select_show_hide(this, 3, '#li_assistance_related')">
+									<option value="0">Assistance Given by</option>
+									<option value="1">Police</option>
+									<option value="2">Firefighters</option>
+									<option value="3">Other</option>
+								</select>
+							</li>
+							<li id="li_assistance_related">
+								<input placeholder="Other" type="text" id="assistance_other" name="assistance_other">
+							</li>
+						</ul>
+					</div>
+				</div>
+			</form>
+			<form id="no_transport">
+				<div class="toolbar">
+					<h1>No Transport</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label">Pt mentally capable?</span>
+								<input type="checkbox" class="onoff yes_no" id="transport_mentally_capable" name="transport_mentally_capable" checked="checked">
+							</li>
+							<li>
+								<span class="label">Pt should be transp?</span>
+								<input type="checkbox" class="onoff yes_no" id="transport_should_be" name="transport_should_be" checked="checked">
+							</li>
+							<li>
+								<span class="label">I told risks of no trans?</span>
+								<input type="checkbox" class="onoff yes_no" id="transport_informed" name="transport_informed" checked="checked">
+							</li>
+							<li>
+								<span class="label margin10pxr" section="main">Reason</span>
+								<select name="transport_reason_refusal" id="transport_reason_refusal" onchange="select_show_hide(this, 5, '#li_reason_related')">
+									<option value="0">Reason for refusal</option>
+									<option value="1">Pt arranging own transport</option>
+									<option value="2">Pt feels no transport necessary</option>
+									<option value="3">inadequate funds</option>
+									<option value="4">no treatment required</option>
+									<option value="5">Other</option>
+								</select>
+							</li>
+							<li id="li_reason_related">
+								<input placeholder="Other" type="text" id="reason_other" name="reason_other">
+							</li>					
+							<li>
+								<span class="label margin10pxr" section="main">Pt left with</span>
+								<select name="transport_left_with" id="transport_left_with" onchange="select_show_hide(this, 7, '#li_left_with_related')">
+									<option value="0">Patient left with</option>
+									<option value="1">Family</option>
+									<option value="2">Friends</option>
+									<option value="3">Police</option>
+									<option value="4">Family for POV transported</option>
+									<option value="5">Friends for POV transport</option>
+									<option value="6">Police for transport</option>
+									<option value="7">Other</option>
+								</select>
+							</li>
+							<li id="li_left_with_related">
+								<input placeholder="Other" type="text" id="left_with_other" name="left_with_other">
+							</li>	
+							<li>
+								<span class="label margin10pxr" section="main">Consult with</span>
+								<input placeholder="Consult with" type="text" id="transport_consult_with" name="transport_consult_with">
+							</li>
+						</ul>
+						<ul class="individual">
+							<li class="arrow"><a ontouchend="saveNoTransport();redirect('#narrative_list', 'flip')">Narrative</a></li>
+							<li class="arrow li_right"><a ontouchend="saveNoTransport();redirect('#signatures', 'flip')">Signatures</a></li>
+						</ul>
+						<span class="label" style="color:#44F; margin-left:10px;">Document risks/advise given to patient in Narrative</span><br />
+
+					</div>
+				</div>
+			</form>
+			<div id="narrative_list">
+				<div class="toolbar">
+					<h1>Narrative</h1>
+					<a class="back" href="#">Back</a>
+					<a class="button add slideup" href="#narrative" ontouchend="resetCurrentRecord()">+</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="edgetoedge">
+							<li class="sep">Narrative Records</li>
+						</ul>
+						<ul class="edgetoedge" id="narrative_sorted">
+							<li id="narrativeTemplate" class="entry list_sorted" style="display:none" >
+								<img class="unlock_line" src="images/img/disabled.png" />
+								<span class="narrative_time">last</span>
+								<span class="delete" style="display:none">Delete</span>	
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<form id="narrative">
+				<div class="toolbar">
+					<h1>Narrative</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<div class="textwrapper">
+									<textarea placeholder="Enter description here" autofocus="autofocus" id="narrative_text" name="narrative_text"></textarea>
+								</div>
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li>
+								<span class="label">Time</span>
+								<input type="text" name="narrative_time" id="narrative_time" class="mobiscroll"/>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</form>
+			<form id="export">
+				<div class="toolbar">
+					<h1>Export</h1>
+					<a class="back" href="#">Back</a>
+					<input type="submit" value="Export" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li class="sep">Full/Short report</li>
+							<li>
+								<span class="label">Show unfilled info</span>
+								<input type="checkbox" class="onoff yes_no" id="export_full" name="export_full" checked="checked">
+							</li>
+						</ul>
+						<ul class="rounded">
+							<li class="sep">Customize the export</li>
+							<li>
+								<span class="label">Patient Info</span>
+								<input type="checkbox" class="onoff yes_no" id="export_patient_info" name="export_patient_info" checked="checked">
+							</li>
+							<li>
+								<span class="label">Vitals</span>
+								<input type="checkbox" class="onoff yes_no" id="export_vitals" name="export_vitals" checked="checked">
+							</li>
+							<li>
+								<span class="label">Chief Complaint</span>
+								<input type="checkbox" class="onoff yes_no" id="export_chief_complaint" name="export_chief_complaint" checked="checked">
+							</li>
+							<li>
+								<span class="label">Patient Hx</span>
+								<input type="checkbox" class="onoff yes_no" id="export_patient_hx" name="export_patient_hx" checked="checked">
+							</li>
+							<li>
+								<span class="label">Exam</span>
+								<input type="checkbox" class="onoff yes_no" id="export_exam" name="export_exam" checked="checked">
+							</li>
+							<li>
+								<span class="label">Procedures</span>
+								<input type="checkbox" class="onoff yes_no" id="export_procedures" name="export_procedures" checked="checked">
+							</li>
+							<li>
+								<span class="label">Signatures</span>
+								<input type="checkbox" class="onoff yes_no" id="export_signatures" name="export_signatures" checked="checked">
+							</li>
+							<li>
+								<span class="label">Call Info</span>
+								<input type="checkbox" class="onoff yes_no" id="export_call_info" name="export_call_info" checked="checked">
+							</li>
+							<li>
+								<span class="label">Narrative</span>
+								<input type="checkbox" class="onoff yes_no" id="export_narrative" name="export_narrative" checked="checked">
+							</li>
+							<li>
+								<span class="label">Code Summary</span>
+								<input type="checkbox" class="onoff yes_no" id="export_code_summary" name="export_code_summary" checked="checked">
+							</li>
+						</ul>
+					</div>
+				</div>
+			</form>
+			<div id="export_page">
+				<div class="toolbar">
+					<h1>Report</h1>
+					<a class="back" href="#">Back</a>
+					<a class="printing button red" ontouchend="printIt()">Print</a>
+					<a class="email actionButton" ontouchend="doEmail()">Email</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<div id="sum_content">
+							<img class="logo" style="float:left; margin-right:5px" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADkAAAA5CAYAAACMGIOFAAAAAXNSR0IArs4c6QAAAAZiS0dEAAAA
+							AAAA+UO7fwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sGCBQtK2lgMwAAAAynSURBVGje
+							5ZprUBRGtsd/PQNDYFBeEZQREYMoL5VIEOWhEB8YicSU3kRRNIk3q2XWPNxkK7Xei97dra17v+yH
+							bLlmaxMfUSQqomTViArxEUSNEoZXUImrKEoUhMDwnJm+HzpWjCAOw5DNrfuvompqhu4+p/v0Of9z
+							TgscjLQ0OVoIRjg72zfebEZOmIBx40bR5iiZnBytZFMTK595hrXt7faNd3PDeuECvwI+/cUq6emJ
+							KzAkNxes1v6N9fKCZcuwurri7kiZHK4kgMkEt2/3X8nOTgYFGv4f4GdXUgjQan/eNZ1+zsWGD4cV
+							K8DJCbZuhRs3fgEn+eGH0jk5WYY5YiGtFtasgd//HjZsgGXLBn6iy5dLz6AgGQNS2K3kH//I6z4+
+							7I2Olu/Pny/9ByKQXg9Tp6pT1GohMFCZrn2QYsIEmdzezqYpU9g3bhzP22WuSUlyXFQUGRERhJaV
+							8V8mE9PCw+WO5GT2f/CB6OzvKY4cCc3NcPWqUtBerF4tvU6eJGPePNZ0dTHWzw90OpbEx8vTH30k
+							GvuhpBTt7Szz9CR682Zoa8Np2jRSU1NJMBqZPmWK3Hz2rDDaIpSfH6xaBS+8AMOGQWmpOsHW1v4r
+							GBIi45ub+fW8eSxobMQ5JwciIiA2lhcOHeJL4AOblYyJYcasWSy7exfNuXPqu2++gVmz8PD3Z9X4
+							8cS2t8sdY8awbf9+0fAooYYOhY0bYeVKuHsXzGYICYH2dqWs2Wzz3RteVsYrKSksM5kIPX8eCgvV
+							b6dOQVgYLjNnssLLSxaeOCHKH3snJ0+Wzt7eLNFoGJWX9xNOyeHDsG8f4s4doqZO5U8+Pvx17Fj5
+							XGam7PVuz5oFS5bAP/8Ja9dCdja0tfWPJISFyRQnJzbNns0fGhsJzcr6UUEAi0XJ1d3N0xYL6b3J
+							0uOL9nbSYmNZeOWKEu5h3LsHO3bAqVPorFYWzZrFlqIi/ufFF+X4h+9hTAy4u8Px45CXBy4uEBam
+							TnP48L6VW7pU+sbGysy0NP7u6cmC4mI0mzfDnTs9//fqVcWw4uN5OTeXGX2a69Kl0tfFheUWC54H
+							DvQtRGUlXL4MSUn4jhjBO0OH8kxwsPxQCLVxzs5gMICUarM6O5WAGhvoR3Mz8QYDzyUkML++Hqe9
+							e+H77/sec/AgLFnC6HHjeC06Wp7/+GPR0quS5eUsTk1ldlGRbY6huxvy88HHB5GYSGJiIpM6O2m7
+							b0YtLcrJjBypQofF8vg5rVY0kZGkdXTgdfo0FBerjXoc2tqgogKmTGHhkSMUAB/1MNeoKBmclERG
+							Wxu6Eyf65/UaGiA3FyorGTpiBMOHDFEbcPKkWnzqVAgK6pE39oqgIOjqwis7G86csU3B+zhzBhob
+							0SUmsvill+Ton/yYmSk10dHyP3/7W2kNDZVSTW3fn5ublAaD+jxihJSFhVKazVKuXy/lW2+pz+3t
+							Ui5f3nOsVitlRISUQti/fkCAlMuXS0tcnNx43wlpAA4fJm7uXJY3NCCqqgZGtdra4OZN9fnWLdi+
+							Xd2njAwIDVUnKIQKIw/DYoHy8v6d3sOorYWGBjRRUaR/9hlxANpFi6S7pyf/odMxPScHYTI5lhxX
+							VoKbGzz3nFLOz099f+CAUmgwcO0aGAx4e3vTFR6+IV/r7b0hPSqK9y5dwvniRccvaLFASYkKH4GB
+							4OmpPO+1a1BX13tIcMSaej0EBxNRXMx1bWDghokGA5N1Orzc3eH69YGZS2/o6FBe0mqFZ59VntbL
+							CyZNUsynocFxa2m1MHs2REaCXs+1ykqOaa9f31ja2rqh1NUVa0gI48LCcG5thcZGxyra2alO8OWX
+							QadTNC8hQZH2kycds7EREZCWBqNH01pby/YzZ8isrhaHNAClpeKLgADeyM/nDVdXvpgzB7l4MQwZ
+							Mjh3pq1NOR6NBkaNGkjKpfDkk/DKK5CSglWjofDwYX4dEcGbFRWi6Cdk4M9/Fu3AFn9/edxk4tXE
+							RFZkZBBYUaF2ur9Fqb5QX6/M1WxWzsfeuXU6xY+Dg5F6PTXHjrHFYGB7WZm4UVb2QMml10RLSjF+
+							PNMjI3ktKIiFJhNPfP45fPvtwJSLioLNm8HHB8aMgU8/hXff7X8ZRAg1V2IiPPEEzWVl7Pr+ez5J
+							TqZ440bRY8v6NJRFi6R7eTn/lpLC61ISc/cu4sABRdfsgcEAO3equ1hUBO+9p1hKf+d4/nnQ6zG3
+							tvJ5QQEfT5rEwT17RNcjN8WWiefOlZFtbaTHx7O0tRVDaSmcONE/Z+HsDL/5Daxfr8LGunWQk2P7
+							eFdXSE1VtE+rperoUXb4+bHt4EFx06EOIzpavjh/vqzaulXK+fMVDbOVbmVkSNnQoP5KSqSMjrZ9
+							rFYr5bx5UmZlSZmcLMtjYuQLDi9JLloktdXVzHzqKdI8PAg6dQrOnbMtqwAICIBXX1UxrKlJBWpb
+							qwL3g3thoWJOAQGE6vWsbWmR7hER7N+zRzw2X3qsuc6ZI5+2WlkSFkb63bsMLy8Ho7F/pjpzJuzZ
+							A//4BwQHg7c3zJ1rnyMbNQqSkkCvp/3OHfZdvsy2mBi++NvfRHe/S5ILFsgRUVHy7dBQ/m4w8E5l
+							JcN371YMpb+BW6tVYeL27R+9o73B//p1Rfq/+gpXLy/S58xh++XL/CkuTobbfJKZmdJ93z4WTpvG
+							MimZ0dyMJj9flT3sRUAA7NqllHVxUSWROXNU2WIgcHFRFmEwIPV6jEeOsGvMGLbn5opbvSqZmSk1
+							u3eTPHEiK/z8SGtqwv30aaipcYzTevtteP99tVlCOEbJ+/D1VZ7X0xPZ3c2x48fZ+dpr7F63TrQD
+							aAHi4+XkGzd4Z/p01gNxpaXoDh50LH+9dk2xnOBgRdBLSuDKFcdwVpNJzWcyIYKCeCoigmfLyhjV
+							0bHBtHbthmva5GT5tL8/W4KCWFBTw9DcXOUQHJ2JtLZCVRXExqpK3ahRytNeuuRYunjxIri74xIa
+							ytMTJzI7L48OjYcHN6xWbjQ1qbKhvW1wW1BXp9KuhgZlYosXq3DiSHR3w6FDcOECWCz4CoFWk5sr
+							vvv6a7KcnGgfN27w22gtLcpKhgxRLMaRxP9BdhUWBt99x+cBAWRrfog9+zs7yQ0PV/dlsGA2qxqs
+							p6ci6YcODY7lpKSAqytNxcVs+ewzUa8BOHpUmIxGtvj4UBcbO3hKSqnCiIcHbNkCn3zi+DV8fWHs
+							WPjqK3ZVVLD/J2SgrIzjtbXsHTNGmdFATGXYsN5/Cw9XpYnSUti0qedDCG9vxY7c3OxfPzUVXFyo
+							uXePnSAsDzEeIevq2OPqyrdxcfYtEBmpsov09J7tACGUgk8+qcJJb3Udb2/43e/gjTcgOrr/FYOQ
+							EPDxQRYUsCM1lTO90jqjUZyuriYrIADp4WH75Ho9LF0KM2di1Wjo6u7undqFhPzY0+jo6H2uigqo
+							q6M2ORm5ejX429jfFkJZQXc3581mPnkwee7BXbu6yHF1pTwx8fETazTqdNasgaAg6s+d4w/V1eT1
+							5jGlVEWr+wI96pR0OqydnWw+coT3hw6lPD1dWcbjrlBMDLi5YT56lKwLF0RNnwS9qEh8ffYsO/38
+							sPTVXouMVD3HyZMx19ezd+9efvXllyLTbOb6o9KlCxegq8u2uF5aKv67sJCVRiObgoO5t2oVJCf3
+							3hVzcYH4eGhp4VhICLtsykL0eva5ulIyY0bv3mvlSpg3D6tGQ3FeHm8C/15VJQ48TvKSEtXus/Xl
+							1dmz4mxgIG/l5bG6qYmDM2bQ9eabqt3wIJKSQKfDdPo0Wbm54jubkuaTJ8Xl5ma5c+pUJgUH43Tl
+							itqt2bOVh3R25sbx42x1cWFHRYWorqiwTejLl1VDNi5OVdpsOdUf8sRPhw2TR8+fZ0lKCq8sXEjU
+							7duI/fvV3Z44Ea5eJWfhQnJ6k+WRod/Hh10aDfMTE0ny8lKVb52Otqoqdn/zDTvLyigA0W++cvOm
+							4q5hYaq6YCvy80Uj8BcfH/mFRsOKhASWvv46fh4e0NTEnZISsrKze38++kglCwpEfW2tzE5PZ9rI
+							keiamzl94ABbExLILisb2FtUIVRGYg/Uwwf5bn09hyIjyfDy4qWaGnImTOBYdbUdNR5/f3bn5xPa
+							0cG9sWPZWVUlagba2rt9W+Wot24NaJtkZSUFsbHyvNHIvrFjubRtm7DYVcg6cUI0TZgg1xuNtF28
+							KBySfHV2qnbegxVue/HDu4C8oqIBVuuMRuHQjqUQKl46Ol8dcEnSkaiuHpyeZJ+khX8BHN0W/EUq
+							+XNjUMxVr1fMqL9Zv6/v/xElrVYs/v6Y162zw6w00NiI7O7GoU/u/xdbknbxqVvCegAAAABJRU5E
+							rkJggg==">
+							<p id="header"><i>This report has been generated by the ePCR App for iPhone/iPad.
+							This App is available on the Apple App Store. (Authors : Thomas Jacquin &amp; Rian Buchanan)</i><br /><br /></p>
+							<div id="reporter_sum">
+							</div>
+							<div id="patient_info_sum">
+							</div>
+							<div id="vitals_sum">
+							</div>
+							<div id="chief_complaint_sum">
+							</div>
+							<div id="patient_hx_sum">
+							</div>
+							<div id="exam_sum">
+							</div>
+							<div id="procedures_sum">
+							</div>
+							<div id="signatures_sum">
+							</div>
+							<div id="call_info_sum">
+							</div>
+							<div id="narrative_sum">
+							</div>
+							<div id="code_sum">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<form id="code">
+				<div class="toolbar">
+					<h1>CODE</h1>
+					<div id="timer"></div>
+					<a class="back" href="#">Back</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="codeList" id="codeList">
+							<li id="code_start" class="greenButton halfButton code" ontouchend="processCode(this, 'CPR Start')">CPR Start</li>
+							<li id="code_stop" class="redButton halfButton code" ontouchend="processCode(this, 'CPR Stop')">CPR Stop</li>
+							<li id="code_shock" class="blueButton code" ontouchend="processCode(this, 'Shock')">Shock</li>
+							<li id="code_vaso" class="blueButton halfButton code" ontouchend="processCode(this, 'Vaso')">VASO</li>
+							<li id="code_epi" class="blueButton halfButton code" ontouchend="processCode(this, 'Epi')">EPI</li>
+							<li id="code_lido" class="blueButton halfButton code" ontouchend="processCode(this, 'Lido')">LIDO</li>
+							<li id="code_amniod" class="blueButton halfButton code" ontouchend="processCode(this, 'Amniod')">AMNIOD</li>
+							<li id="code_atropine" class="blueButton code" ontouchend="processCode(this, 'Atropine')">Atropine</li>
+							<li id="code_airway" class="blueButton code" ontouchend="processCode(this, 'Airway')">Airway</li>
+							<li id="code_rosc" class="grayButton halfButton code" ontouchend="processCode(this, 'ROSC')">ROSC</li>
+							<li id="code_pronounce" class="grayButton halfButton code" ontouchend="processCode(this, 'PRONOUNCE')">PRONOUNCE</li>
+						</ul>
+					</div>
+				</div>
+			</form>
+			<div id="code_list">
+				<div class="toolbar">
+					<h1>CODE List</h1>
+					<a class="backSubmit" ontouchend="goToPage('#patient', 'dissolve', false)">Back</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="basic">
+							<li>
+								<span class="label">You haven't used the CODE function</span>
+							</li>
+						</ul>
+						<ul class="edgetoedge" id="code_sorted">
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div id="patients_list">
+				<div class="toolbar">
+					<h1>Patients List</h1>
+					<a class="backSubmit" ontouchend="goToPage('#home', 'slide', true)">Menu</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="edgetoedge">
+							<li class="sep">Patients</li>
+						</ul>
+						<ul class="edgetoedge" id="patients_sorted">
+							<li id="entryTemplate" class="entry list_sorted" style="display:none" >
+								<img class="unlock_line" src="images/img/disabled.png" />
+								<span class="last_name">last</span>
+								<span class="first_name">first</span>
+								<span class="delete" style="display:none">Delete</span>	
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<form id="settings">
+				<div class="toolbar">
+					<h1>Settings</h1>
+					<a href="#" class="back">Cancel</a>
+                    <input type="submit" value="Done" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li class="sep">User Info</li>
+							<li>
+								<span class="label">Last Name</span>
+								<input class="margin5px" placeholder="Your Last Name" type="text" name="employee_last_name" id="employee_last_name" /></li>
+							<li>
+								<span class="label">First Name</span>
+								<input class="margin5px" placeholder="Your First Name" type="text" name="employee_first_name" id="employee_first_name" /></li>
+							<li>
+								<span class="label">Employee Id</span>
+								<input class="margin5px" placeholder="Your Employee id" type="text" name="employee_id" id="employee_id" /></li> 
+							<li>
+								<span class="label">Position</span>
+								<select class="margin5px" name="employee_position" id="employee_position">
+									<option value="0">Your Position</option>
+									<option value="1">Paramedic</option>
+									<option value="2">Nurse</option>
+									<option value="3">Medic</option>
+									<option value="4">EMT</option>
+									<option value="5">Firefighter</option>
+								</select>
+							</li>
+							<li>
+								<span class="label">Work Place</span>
+								<input class="margin5px" placeholder="Your Work Place" type="text" name="employee_location" id="employee_location" /></li>
+                            <li>
+                                <span class="label">Send report to</span>
+                                <input class="margin5px" placeholder="Email address" type="email" name="send_report_to" id="send_report_to" />
+                            </li>
+						</ul>
+						<ul class="rounded" id="employee_frequent_partners">
+							<li class="sep">Partners&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="add_line" href="#add_partner" ontouchend="saveSettingsCore()">+</a></li>	
+							<li id="partner_template" class="entry list_sorted" style="display:none" >
+								<img class="unlock_line" src="images/img/disabled.png" />
+								<span class="partner_entry label">Partner</span>
+								<span class="delete" style="display:none">Delete</span>
+							</li>
+						</ul>
+						<ul class="individual">
+							<li class="pictureLink" id="employeePhotoTake" onclick="takePicture('employeeImage')" >Employee Photo</li>
+							<li class="nopictureLink li_right" id="employeePhotoRemove" onclick="removePicture('employeeImage')" >No Photo</li>
+						</ul>
+						<img class="pictureHidden" id="employeeImage" src="" />
+					</div>
+				</div>
+			</form>
+			<form id="add_partner">
+				<div class="toolbar">
+					<h1>Add a Partner</h1>
+					<a href="#" class="back">Cancel</a>
+					<input type="submit" value="Add" />
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded" id="partners_list">
+							<li class="sep">Partner</li>
+							<li>
+								<span class="label">Last Name</span>
+								<input class="margin5px" placeholder="Last Name" type="text" name="partner_last_name" id="partner_last_name" />
+							</li>
+							<li>
+								<span class="label">First Name</span>
+								<input class="margin5px" placeholder="First Name" type="text" name="partner_first_name" id="partner_first_name" />
+							</li>
+						</ul>
+					</div>
+				</div>
+			</form>
+			<form id="sync">
+				<div class="toolbar">
+					<h1>Sync your ePCRs</h1>
+					<a href="#" class="back">Back</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<ul class="rounded">
+							<li>
+								<span class="label third margin10pxr">Email</span>
+								<input placeholder="Your email" type="email" id="sync_login"  name="sync_login">
+							</li>
+							<li>
+								<span class="label third margin10pxr">Password</span>
+								<input placeholder="Your password" type="password" id="sync_password"  name="sync_password">
+							</li>
+						</ul>
+						<ul class="basic">
+							<input type="submit" class="greenButton loginSyncButton" value="Log on to CloudePCR" />
+						</ul>
+						<!-- <p><a class="button" onclick="UpdateDatabase()">Update Database</a></p>
+						<p></p>
+						<p><a class="button" onclick="dropPCRtables()">Drop owner's patients</a></p>
+						<p><a class="button" onclick="createNewPCRtables()">Create new db</a></p>
+						<p><a class="button" onclick="InsertPatients()">Insert patients</a></p>
+						<p><a class="button" onclick="UpdateDatabase()">Update db to 1.0.4</a></p> -->
+						<div id="sync_related" style="display:none">
+							<ul class="rounded">
+								<li id="sync_send"><a onclick="syncPatients()">Send PCRs to the Cloud</a></li>
+							</ul>
+							<ul class="rounded">
+								<li id="sync_get"><a onclick="getPatientsBack()">Get PCRs from the Cloud</a></li>
+							</ul>
+							<p><b>Please note</b> that synchronizing PCRs will make them <b>identical</b> on your device and the cloud.</br>For a first use, send your PCRs to the cloud, then you can either access them through a web browser or download them on a new device.</br>If your cloud is empty, <b>avoid</b> hitting "Get PCRs from the Cloud" as it would <b>erase</b> the PCRs on your device.</br></br></p>
+						</div>
+						<p id="register">Not a member yet? Register at <span id="register_link">www.cloudepcr.com</span></p>
+						<!-- <textarea rows="200" cols="50" id="exportsql"></textarea> -->
+					</div>
+				</div>
+			</form>
+			<div id="about" class="current">
+				<div class="toolbar">
+					<h1>About</h1>
+					<a class="back" href="#" section="full">Back</a>
+				</div>
+				<div class="s-scrollwrapper contentwrap">
+					<div class="s-scrollpane">
+						<p><img src="epcr2.png"/></p><br />
+						<p><strong>ePCR</strong><br />Version <span id="version">1.0.6</span><br />April 10 2012<br /><br />
+						<p><em>ePCR is a professional application for iPhone/iPod Touch/iPad to help EMS workers with their Patient Care Reports
+							<br /><br /></em>
+						</p>
+						<p><i>Developer: Thomas Jacquin</i></p>
+						<p><i>Original Idea: Rian Buchanan</i></p><br />
+
+						<p style="color:#44F">&copy; RT Applications</p>
+						<p><a style="color:#44F; text-decoration: none" href="http://epcr.wordpress.com">http://epcr.wordpress.com</a></p>
+						<br />
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

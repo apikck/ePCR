@@ -1,0 +1,2549 @@
+/*
+ *  Created by David Kaneda <http://www.davidkaneda.com>
+ *  Documentation and issue tracking on GitHub <http://wiki.github.com/senchalabs/jQTouch/>
+ *
+ *  Special thanks to Jonathan Stark <http://jonathanstark.com/>
+ *  and pinch/zoom <http://www.pinchzoom.com/>
+ *
+ *  Contributor: Thomas Yip <http://beedesk.com/>
+ *
+ *  (c) 2009-2011 by jQTouch project members and contributors
+ *  Released under MIT license
+ */
+
+body {
+	background: #000;
+}
+
+/* @group general */
+
+#jqt > div, #jqt > form {
+	background: #333;
+    -webkit-transform: translate3d(0,0,0);
+    -webkit-backface-visibility: hidden;
+	-webkit-user-select: ignore;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    -webkit-box-orient: vertical; -moz-box-orient: vertical; box-orient: vertical;
+    -webkit-box-pack: start;
+    -webkit-box-align: stretch;
+    min-height: 100%;
+}
+
+#jqt > * > h2 {
+    margin: 0;
+    padding: 10px 20px 2px 20px;
+    color: rgb(76, 86, 108);
+    font: bold 12pt "Helvetica Neue", Helvetica;
+    text-shadow: rgba(255, 255, 255, .2) 1px 1px 1px;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#jqt > * > * {
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+}
+
+#jqt > * .contentwrap {
+    display: -webkit-box; display: -moz-box; display: box;
+    position: relative;
+    box-flex: 10;
+    -webkit-box-flex: 10;
+    -moz-box-flex: 10;
+    min-height: 100%;
+    bottom: 0; left: 0; right: 0;
+    margin: 0px; margin-top: 0px;
+    padding-top: 0px;
+    overflow-x: hidden;
+}
+
+#jqt > * .contentwrap[title]::before,
+#jqt > * .content[title]::before {
+    /* position: absolute; */
+    display: block; position: relative;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    height: 22px; width: 100%;
+    top: 0px;
+    border-top: 1px solid #CDD5DF; border-bottom: 1px solid #6d84a2;
+    background-color: #889bb3;
+    background-position: center, 0 0; background-repeat: no-repeat, repeat-x;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(139, 171, 159, 0.75)), to(rgba(181, 201, 193, 0.75)));
+    cursor: pointer;
+    padding: 0 10px;
+    opacity: 0.5;
+    z-index: 19;
+    text-align: right;
+    font-weight: 200;
+    content: attr(title);
+}
+
+@-moz-document url-prefix() {
+    #jqt > div, #jqt > form {
+    }
+
+    #jqt > * > .contentwrap {
+    }
+}
+
+#jqt > * > div:not(.contentwrap):not(.navibar):not(.toolbar):not(.bar):not(.info):not(.choicefloat):not(.spinnerfloat):not(.sw-slots-wrapper),
+#jqt > * > form:not(.contentwrap):not(.navibar):not(.toolbar):not(.bar):not(.info):not(.choicefloat):not(.spinnerfloat):not(.sw-slots-wrapper) {
+    /* back-compat worthwhile? */
+    top: 0; left: 0; right: 0;
+    /* min-height: 100%; */
+    padding-top: 0px; padding-bottom: 0px;
+    -webkit-box-flex: 10;
+    -moz-box-flex: 10;
+    /* border-top workaround the bug/feature that mobile safari skip the child (such as ui) padding */
+    border-top: 1px solid transparent;
+    margin-top: -1px;
+}
+
+/* all input pad: spinningwheel, emoticon pane etc. */
+#jqt > * > .sw-slots-wrapper {
+    top: 0; left: 0; right: 0;
+    padding-top: 0px; padding-bottom: 0px;
+    -webkit-box-flex: 10;
+    -moz-box-flex: 10;
+}
+
+#jqt > * .contentwrap > .content,
+#jqt > * .contentwrap > :first-child:not(.noncontent) {
+    position: absolute;
+    display: block;
+    top: 0; left: 0; right: 0;
+    padding-top: 0px; padding-bottom: 0px;
+    min-height: 100%;
+}
+
+#jqt > * > .content {
+    -webkit-box-orient: vertical; -moz-box-orient: vertical; box-orient: vertical;
+    -webkit-box-pack: start;
+    -webkit-box-align: stretch;
+}
+
+/* @end */
+
+
+
+/* @group Toolbar & Navibar */
+
+#jqt > * .toolbar, #jqt > * .navibar, #jqt > * .bar {
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    -webkit-box-pack: justify;
+    -webkit-box-align: center;
+    -webkit-box-orient: horizontal; -moz-box-orient: horizontal; box-orient: horizontal;
+    -webkit-box-flex: 0;
+    -moz-box-flex: 0;
+    border: none;
+    height: 44px;
+    text-align: center;
+    overflow: hidden;
+    background: url(img/toolbar.png) #000000 repeat-x;
+}
+
+#jqt > * .navibar, #jqt > * .bar {
+    display: -webkit-box; display: -moz-box; display: box;
+}
+
+#jqt > * .toolbar {
+    -webkit-box-flex: 0;
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #2d3642;
+    padding: 6px 5px 6px 5px;
+    background: url(img/toolbar.png) #000000 repeat-x;
+}
+
+#jqt > * .bar {
+    -webkit-box-flex: 0;
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+    padding: 6px 5px 6px 5px;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #616569), color-stop(0.5, #2f3439), color-stop(0.5, #1e2329), color-stop(1, #16191e));
+}
+
+#jqt > * .navibar {
+    -webkit-box-flex: 0;
+    border-top: 1px solid #2d3642;
+    padding: 7px 5px 9px 5px;
+    background-color: black;
+    background: url(img/toolbar.png) #000000 repeat-x;
+}
+
+#jqt > * .navibar::before {
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 1px;
+    top: auto;
+    margin: -7px -5px 0 -5px;
+    border-top: 1px solid #000;
+    content: "";
+}
+
+#jqt > * .toolbar > *, #jqt > * .navibar > *, #jqt > * .bar > * {
+    display: block;
+    position: relative;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    -webkit-box-flex: 0;
+}
+
+#jqt > * > * .buttonset {
+    display: -webkit-box; display: -moz-box; display: box;
+}
+
+#jqt .toolbar > h1, #jqt .navibar > h1 {
+    display: block;
+    position: absolute;
+    -webkit-box-pack: center;
+    -webkit-box-align: center;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    top: auto;
+    overflow: hidden;
+    width: 100%;
+    height: 29px;
+    line-height: 29px;
+    margin-top: 1px;
+    margin-left: -5px;
+    margin-right: -5px;
+    background-repeat: no-repeat;
+    background-position:center;
+    text-align: center;
+    vertical-align: middle;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    font: bold 13.5pt "Helvetica Neue", Helvetica;
+    color: white;
+    text-shadow: 0px -1px 0px #374683;
+}
+
+#jqt .toolbar .touch, #jqt .navibar .touch {
+    color: #808080;
+}
+
+#jqt > * > * .button,
+#jqt > * > * .tog,
+#jqt > * > .navibar input[type="radio"], #jqt > * > .toolbar input[type="radio"], #jqt > * .bar input[type="radio"],
+#jqt .toolbar .add, #jqt .toolbar .leftButton,
+#jqt .toolbar .actionButton, #jqt .toolbar .done,
+#jqt .toolbar input[type="submit"], #jqt .toolbar input[type="reset"],
+#jqt .toolbar .back, #jqt .toolbar .cancel {
+    display: block;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    height: 29px; min-height: 29px; line-height: 28px;
+    min-width: 30px;
+    padding: 0;
+    border: 0px none transparent;
+    border-radius: 0;
+    overflow: hidden;
+    color: #fff;
+    font-family: inherit; font-weight: bold; font-size: 9.25pt;
+    text-align: center;
+    text-shadow: rgba(0, 0, 0, 0.5) 0px -1px 0;
+    text-overflow: ellipsis;
+    text-decoration: none;
+    white-space: nowrap;
+    -webkit-user-drag: none;
+}
+
+#jqt > * > .navibar .icon, #jqt > * > .toolbar .icon, #jqt > * .bar .icon {
+    display: block;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    height: auto; line-height: 14px; min-height: 30px;
+    width: auto; min-width: 30px;
+    vertical-align: middle;
+    color: white;
+    background-color: white;
+    background-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
+    background-size: contain;
+    background-position: 50% 50%;
+    -webkit-background-size: contain;
+    -webkit-background-origin: content-box;
+    -webkit-mask-origin: content-box;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position-x: 50%;
+}
+
+#jqt > * > .navibar .icon.active, #jqt > * > .toolbar .icon.active, #jqt > * .bar .icon.active,
+#jqt > * > .navibar .icon:active, #jqt > * > .toolbar .icon:active, #jqt > * .bar .icon:active {
+    color: lightgrey;
+    background-color: lightgrey;
+}
+
+#jqt > * > * .button.greyblue,
+#jqt > * > * .button:not(.backarrowgreyblue), /* default */
+#jqt > * > * .tog,
+#jqt > * > .navibar input[type="radio"], #jqt > * > .toolbar input[type="radio"], #jqt > * .bar input[type="radio"],
+#jqt .toolbar .add, #jqt .toolbar .leftButton,
+#jqt .toolbar input[type="reset"] {
+    border: 1px solid #333;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #616569), color-stop(0.5, #2f3439), color-stop(0.5, #1e2329), color-stop(1, #16191e));
+    -webkit-box-shadow: inset 0 1px 1px rgba(127, 127, 127, .25), 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+
+#jqt > * > * .button.brightblue,
+#jqt .toolbar .actionButton, #jqt .toolbar .done,
+#jqt .toolbar input[type="submit"] {
+    border: 1px solid #55606d;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #77A2F8), color-stop(0.5, #225FDA), color-stop(0.5, #1F55C3), color-stop(1, #1F57C6));
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .25), 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+#jqt > * > * .button.red {
+    border: 1px solid #55606d;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #DB898F), color-stop(0.5, #D05761), color-stop(0.5, #BD1421), color-stop(1, #BC1421));
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .25), 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+#jqt > * > * .button.backarrowgreyblue,
+#jqt .toolbar .back, #jqt .toolbar .cancel {
+    height: 33px; min-height: 33px; line-height: 30px;
+    margin-top: -1px;
+    border-width: 1px 8px 2px 14px;
+    -webkit-border-image: url(img/back_button.png) 0 8 0 14;
+}
+
+#jqt > * > * .button,
+#jqt > * > * .tog,
+#jqt .toolbar .add, #jqt .toolbar .leftButton,
+#jqt .toolbar .actionButton, #jqt .toolbar .done,
+#jqt .toolbar input[type="submit"], #jqt .toolbar input[type="reset"],
+#jqt .toolbar .back, #jqt .toolbar .cancel {
+    max-width: 95px;
+}
+
+#jqt > * > * .button,
+#jqt > * > * .tog,
+#jqt > * > .navibar input[type="radio"], #jqt > * > .toolbar input[type="radio"], #jqt > * .bar input[type="radio"],
+#jqt .toolbar .add, #jqt .toolbar .leftButton,
+#jqt .toolbar .actionButton, #jqt .toolbar .done,
+#jqt .toolbar input[type="submit"], #jqt .toolbar input[type="reset"] {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+#jqt > * > * .button.nopad, #jqt > * > * .tog.nopad {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+#jqt > * > * .button, /* default */
+#jqt > * > * .tog,
+#jqt .toolbar .add, #jqt .toolbar .leftButton,
+#jqt .toolbar .actionButton, #jqt .toolbar .done,
+#jqt .toolbar input[type="submit"], #jqt .toolbar input[type="reset"] {
+    border-radius: 6px;
+}
+
+#jqt > * > * .right,
+#jqt .toolbar .button, #jqt .toolbar .add,
+#jqt .toolbar .actionButton, #jqt .toolbar .done,
+#jqt .toolbar .buttonset,
+#jqt .toolbar input[type="submit"] {
+    float: right;
+}
+
+#jqt > * > * .left,
+#jqt .toolbar .back, #jqt .toolbar .cancel, #jqt > * > * .button.backarrowgreyblue,
+#jqt .toolbar .leftButton,
+#jqt .toolbar input[type="reset"] {
+    float: left;
+}
+
+#jqt > * > * .center, #jqt > * .buttonset .button {
+    float: none;
+}
+
+#jqt > * > * .span {
+    -webkit-box-flex: 1;
+    max-width: none;
+}
+
+#jqt > * > * .button + .button {
+    margin-left: 10px;
+}
+
+#jqt > * .buttonset .button, #jqt > * .buttonset .button + .button {
+    /* reverse the effect of "#jqt > * > * .button" { border-radius: 6px; max-width: 95px; } */
+    -webkit-box-flex: 1;
+    max-width: none;
+    border-radius: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+#jqt > * > .navibar input[type="radio"], #jqt > * > .toolbar input[type="radio"], #jqt > * .bar input[type="radio"],
+#jqt > * .buttonset .button {
+    -webkit-box-flex: 1;
+    max-width: none;
+    -webkit-appearance: none;
+    -webkit-text-decorations-in-effect: none;
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+#jqt > * > .navibar input[type="radio"]:first-of-type, #jqt > * > .toolbar input[type="radio"]:first-of-type, #jqt > * .bar input[type="radio"]:first-of-type,
+#jqt > * .buttonset .button:first-of-type:not(.right),  #jqt > * .buttonset .button.right:last-of-type {
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+}
+
+#jqt > * > .navibar input[type="radio"]:first-of-type:not(:first-child), #jqt > * > .toolbar input[type="radio"]:first-of-type:not(:first-child), #jqt > * .bar input[type="radio"]:first-of-type:not(:first-child),
+#jqt > * .buttonset .button:first-of-type:not(:first-child) {
+    margin-left: 20px;
+}
+
+#jqt > * > .navibar input[type="radio"]:last-of-type, #jqt > * > .toolbar input[type="radio"]:last-of-type, #jqt > * .bar input[type="radio"]:last-of-type,
+#jqt > * .buttonset .button:last-of-type:not(.right), #jqt > * .buttonset .button.right:first-of-type {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+#jqt > * > .navibar input[type="radio"]:not(:last-of-type), #jqt > * > .toolbar input[type="radio"]:not(:last-of-type), #jqt > * .bar input[type="radio"]:not(:last-of-type),
+#jqt > * .buttonset .button:not(:last-of-type):not(.right), #jqt > * .buttonset .button.right:not(:first-of-type) {
+    border-right: 0px none transparent;
+}
+
+#jqt > * > .navibar input[type="radio"]:last-of-type:not(:last-child), #jqt > * > .toolbar input[type="radio"]:last-of-type:not(:last-child), #jqt > * .bar input[type="radio"]:last-of-type:not(:last-child),
+#jqt .buttonset .button:last-of-type:not(:last-child) {
+    margin-right: 20px;
+}
+
+#jqt > * > .navibar input[type="radio"]:after, #jqt > * > .toolbar input[type="radio"]:after, #jqt > * .bar input[type="radio"]:after,
+#jqt .bar .button:after {
+    content: attr(title);
+}
+
+#jqt > * > * .button:not(.backarrowgreyblue).active, #jqt .toolbar .add.active,
+#jqt .toolbar .add:active, #jqt > * > * .button:checked
+#jqt > * > * .tog.active, #jqt > * > * .tog:active,
+#jqt .toolbar .leftButton.active, #jqt .toolbar .leftButton:active,
+#jqt .toolbar .actionButton:active, #jqt .toolbar .done:active, #jqt .toolbar .actionButton.active, #jqt .toolbar .done.active,
+#jqt .toolbar input[type="submit"]:active, #jqt .toolbar input[type="submit"].active, #jqt .toolbar input[type="reset"]:active, #jqt .toolbar input[type="reset"].active {
+    background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0, #9cc472),
+        color-stop(0.5, #7fbf3d), color-stop(0.5, #6db423), color-stop(1, #6eb623));
+    color: #fff;
+    text-shadow: none;
+}
+
+#jqt > * > .navibar input[type="radio"]:active, #jqt > * > .toolbar input[type="radio"]:active, #jqt > * .bar input[type="radio"]:active,
+#jqt > * > .navibar input[type="radio"].active, #jqt > * > .toolbar input[type="radio"].active, #jqt > * .bar input[type="radio"].active {
+    /* workaround the flicker between deactived and checked using in-between color*/
+    background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0, #7d88a5),
+        color-stop(0.5, #49628D), color-stop(0.5, #365281), color-stop(1, #385584));
+}
+
+#jqt > * > .navibar input[type="radio"]:checked, #jqt > * > .toolbar input[type="radio"]:checked, #jqt > * .bar input[type="radio"]:checked {
+    background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0, #7d88a5),
+        color-stop(0.5, #3a4e78), color-stop(0.5, #253C6A), color-stop(1, #273f6d));
+    color: #fff;
+    text-shadow: none;
+}
+
+#jqt > * > * .button.red:active, #jqt > * > * .button.red.active {
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #99555A), color-stop(0.5, #9A373F), color-stop(0.5, #90040F), color-stop(1, #8F040F));
+}
+
+#jqt .toolbar .back:active, #jqt .toolbar .cancel:active, #jqt > * > * .button.backarrowgreyblue:active {
+    -webkit-border-image: url(img/back_button_clicked.png) 0 8 0 14;
+	color: #fff;
+}
+
+#jqt > * > * .button.greyblue[disabled], #jqt > * > * .button.greyblue:disabled,
+#jqt > * > * .button.brightblue[disabled], #jqt > * > * .button.brightblue:disabled,
+#jqt > * > * .button[disabled], #jqt > * > * .button:disabled,
+#jqt > * > * .tog[disabled], #jqt > * > * .tog:disabled,
+#jqt > * > .navibar input[type="radio"][disabled], #jqt > * > .toolbar input[type="radio"][disabled], #jqt > * .bar input[type="radio"][disabled],
+#jqt > * > .navibar input[type="radio"]:disabled, #jqt > * > .toolbar input[type="radio"]:disabled, #jqt > * .bar input[type="radio"]:disabled,
+#jqt .toolbar .add[disabled], #jqt .toolbar .leftButton[disabled],
+#jqt .toolbar .add:disabled, #jqt .toolbar .leftButton:disabled,
+#jqt .toolbar .actionButton[disabled], #jqt .toolbar .done[disabled],
+#jqt .toolbar .actionButton:disabled, #jqt .toolbar .done:disabled,
+#jqt .toolbar input[type="submit"][disabled], #jqt .toolbar input[type="submit"]:disabled,
+#jqt .toolbar input[type="reset"][disabled], #jqt .toolbar input[type="reset"]:disabled {
+    background-image:-webkit-gradient(linear, left top, left bottom,
+      color-stop(0, rgba(125, 136, 165, 0.8)), color-stop(0.5, rgba(88, 119, 162, 0.8)),
+      color-stop(0.5, rgba(71, 105, 153, 0.8)), color-stop(1, rgba(74, 108, 155, 0.8)));
+    color: rgba(192, 192, 192, 0.8) !important;
+}
+
+#jqt .toolbar .buttonicon, #jqt .navibar .buttonicon {
+  color: #fff;
+}
+
+#jqt > * > * .button .redbadge {
+    position: relative;
+    min-width: 16px;
+    width: 16px;
+    min-height: 16px;
+    padding: 0 4px 0 4px;
+    background-color: #C02020;
+    font-size: 10pt;
+    border-radius: 9pt;
+    border: 2pt solid white;
+    color: white;
+    font-weight: bold;
+    text-shadow: none;
+    background-image: -webkit-gradient(radial, 50% -130%, 25, 50% 0, 54, from(rgba(255,255,255,0.3)), to(rgba(255,255,255,0.1)),
+      color-stop(2%, rgba(255,255,255,0.3)),
+      color-stop(4%, rgba(31,31,31,0.1)),
+      color-stop(38%, rgba(239,239,239,0.1)));
+    text-align: center;
+}
+
+@media only screen and (max-device-width: 320px) and (orientation:landscape) {
+  #jqt .toolbar, #jqt .navibar, #jqt .bar {
+      padding: 3px 5px 3px 5px;
+      height: 32px;
+  }
+
+  #jqt .toolbar > h1, #jqt .navibar > h1 {
+      margin-top: -1px;
+  }
+
+  #jqt > * > * .button,
+  #jqt > * > * .tog,
+  #jqt > * > .navibar input[type="radio"], #jqt > * > .toolbar input[type="radio"], #jqt > * .bar input[type="radio"],
+  #jqt .toolbar .add,
+  #jqt .toolbar .actionButton, #jqt .toolbar .done,
+  #jqt .toolbar .back, #jqt .toolbar .cancel, #jqt > * > * .button.backarrowgreyblue {
+      height: 24px;
+      line-height: 23px;
+      min-height: 24px;
+      padding-left: 10px;
+      padding-right: 10px;
+      font-size: 8.5pt;
+  }
+
+  #jqt .toolbar .back, #jqt .toolbar .cancel, #jqt > * > * .button.backarrowgreyblue {
+      height: 27px; /* different in counting png and css border */
+  }
+}
+
+#jqt > .wait .toolbar:not(.progress) {
+    display: none;
+}
+
+#jqt > :not(.wait) .toolbar.progress {
+    display: none;
+}
+
+#jqt > * .toolbar.progress .spinner {
+    position: absolute;
+    margin-left: 30px;
+    margin-right: 5px;
+    margin-top: 2px;
+    width: 20px;
+    height: 20px;
+}
+
+
+
+/* @group Search Pane */
+
+#jqt .searchpane .toolbar, #jqt .searchbox .inputbar, #jqt .searchbox .degager {
+    -webkit-transition-duration: 200ms;
+    -webkit-transition-timing-function: linear;
+}
+
+#jqt .searchpane .toolbar {
+    position: relative;
+    top: 0px;
+    z-index: 10;
+    -webkit-transform: translate3d(0, 0, 0);
+    -webkit-transition-property: -webkit-transform;
+}
+
+#jqt .searchpane.engaged .toolbar {
+    -webkit-transform: translate3d(0, -44px, 0);
+}
+
+#jqt .searchpane .contentwrap {
+    position: relative;
+    margin-top: -44px;
+    bottom: 0;
+}
+
+#jqt .searchbox .inputbar {
+    position: relative;
+    top: 44px;
+    z-index: 20;
+    border-top: 1px solid #000;
+    -webkit-transform: translate3d(0, 0, 0);
+    -webkit-transition-property: -webkit-transform;
+}
+
+#jqt .searchbox.engaged .inputbar {
+    -webkit-transform: translate3d(0, -44px, 0);
+}
+
+#jqt .searchbox .optionbar {
+    position: relative;
+    border-top: 1px solid #000;
+}
+
+#jqt .searchbox .inputbar, #jqt .searchbox .optionbar {
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #616569), color-stop(0.5, #2f3439), color-stop(0.5, #1e2329), color-stop(1, #16191e));
+    border-bottom: 1px solid #000;
+}
+
+#jqt .searchbox .smokedscreen {
+    display: none;
+    position: absolute;
+    content: "";
+    width: 100%;
+    height: 100%;
+    min-height: 100px;
+    z-index: 20;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+#jqt .searchbox.engaged .smokedscreen {
+    display: block;
+}
+
+#jqt .searchbox input[type="search"] {
+    -webkit-appearance: none;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    -webkit-border-radius: 15px; -moz-border-radius: 15px; border-radius: 15px;
+    -webkit-box-flex: 1;
+    padding: 1px 10px 1px 30px;
+    height: 30px;
+    line-height: 30px;
+    background-color: white;
+    border: 0px solid transparent;
+    -webkit-box-shadow: inset 0px 1px 5px rgba(0, 0, 0, 0.75), 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+#jqt .searchbox input[type="search"] {
+    position: absolute;
+    left: 5px;
+    right: 5px;
+    font-size: 12pt;
+    color: #111;
+    -webkit-transition-property: right;
+    -webkit-transition-timing-function: linear;
+}
+
+#jqt .searchbox.engaged input[type="search"] {
+    right: 75px;
+}
+
+#jqt .searchbox .searchcancel {
+    position: absolute;
+    right: -90px;
+    -webkit-transform: translate3d(0, 0, 0);
+    -webkit-transition-property: -webkit-transform;
+}
+
+#jqt .searchbox.engaged .searchcancel {
+    -webkit-transition-duration: 50ms;
+    -webkit-transform: translate3d(-100px, 0, 0);
+}
+
+#jqt > * > * .button.lightgrey,
+#jqt .searchbox .inputbar input[type="radio"], #jqt .searchbox .optionbar input[type="radio"] {
+    /* @TODO -- should merge with ".bar input[type="radio"]" eventually */
+    color: #415E85;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #D6DDE1), color-stop(0.5, #C4CDD3), color-stop(0.5, #C3CBD2), color-stop(1, #B4BEC6));
+    -webkit-box-shadow: inset 0 1px 1px rgba(127, 127, 127, .25), 0 1px 0 rgba(127, 127, 127, 0.25);
+    text-shadow: rgba(127, 127, 127, 0.5) -0.5px -0.5px 0, rgba(255, 255, 255, 0.5) 0.5px 0.5px 0;
+    border: 1px solid #647283;
+}
+
+#jqt .searchbox .inputbar input[type="radio"]:not(:last-of-type), #jqt .searchbox .optionbar input[type="radio"]:not(:last-of-type) {
+    border-right: 0px none transparent;
+}
+
+#jqt > * > * .button.darkgrey,
+#jqt > * > * .button.lightgrey:active, #jqt > * > * .button.lightgrey.active, #jqt > * > * .button.lightgrey:checked,
+#jqt .searchbox .inputbar .button, #jqt .searchbox .optionbar .button,
+#jqt .searchbox .inputbar input[type="radio"]:checked,
+#jqt .searchbox .optionbar input[type="radio"]:checked,
+#jqt .searchbox .inputbar input[type="radio"]:active,
+#jqt .searchbox .optionbar input[type="radio"]:active,
+#jqt .searchbox .inputbar input[type="radio"].active,
+#jqt .searchbox .optionbar input[type="radio"].active {
+    color: white;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #8C9BAF), color-stop(0.5, #7B8BA3), color-stop(0.5, #7989A1), color-stop(1, #657893));
+    text-shadow: rgba(127, 127, 127, 0.5) -1px -1px 0, rgba(127, 127, 127, 0.5) 1px 1px 0;
+}
+
+#jqt > * > * .button.darkgrey:active, #jqt > * > * .button.darkgrey.active,
+#jqt .searchbox .inputbar .button:active, #jqt .searchbox .optionbar .button:active,
+#jqt .searchbox .inputbar .button.active, #jqt .searchbox .optionbar .button.active {
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #8991A7), color-stop(0.5, #4D597A), color-stop(0.5, #3E4B6F), color-stop(1, #3E4A6E));
+}
+
+/* @end */
+
+
+
+/* @group Choice Pane */
+
+#jqt > div::before, #jqt > form::before {
+    display: none;
+    position: absolute;
+    content: "";
+    top: 0; bottom: 0; left: 0; right: 0;
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0.4);
+    opacity: 0;
+}
+
+#jqt > div.smokedglass::before, #jqt > form.smokedglass::before,
+#jqt > div.smokedfilm::before, #jqt > form.smokedfilm::before {
+    display: block;
+    opacity: 1;
+    -webkit-transition-property: opacity;
+    -webkit-transition-duration: 1000ms;
+}
+
+#jqt > div.choicepane {
+    height: 100%;
+    background-color: transparent;
+    background-image: none;
+    z-index: 50;
+}
+
+#jqt > div.choicepane > div.spinnerfloat {
+    position: relative;
+    -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+    margin: auto;
+    padding: 25px;
+    width: 50px;
+    height: auto;
+    top: 30%;
+    text-align: center;
+    font-size: 8pt;
+    font-weight: bold;
+    color: #fff;
+}
+
+#jqt > div.choicepane > div.spinnerfloat > .spinner {
+    height: 50px;
+    width: 50px;
+}
+
+#jqt > div.choicepane > div.choicefloat {
+    position: absolute;
+    top: auto;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    padding-bottom: 10px;
+    border-top: 1px solid #333;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(160, 168, 172, 0.75)), color-stop(0.08, rgba(112, 120, 128, 0.5)), color-stop(0.08, rgba(96, 102, 114, 0.5)), to(rgba(96, 102, 114, 0.5)));
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+#jqt > div.choicepane > div.choicefloat::before {
+    display: block;
+    position: relative;
+    height: 10px;
+    content: "";
+    border-top: 1px solid #CCC;
+    width: 100%;
+}
+
+/* @end */
+
+
+
+/* @group iScroll pull to refresh */
+
+/* based on: https://github.com/cubiq/iscroll */
+.iScrollPullDown,
+.iScrollPullUp {
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    background:#fff;
+    border-bottom:1px solid #aaa;
+    height:50px;
+    line-height:40px;
+    padding:5px 10px;
+    font-size:14px;
+    color:#999;
+    font-weight:bold;
+    -webkit-transform:translate3d(0,0,0);   /* Put the element in the HW accelerated layer */
+}
+
+.iScrollPullDownIcon,
+.iScrollPullUpIcon {
+    display:block; float:left;
+    width:40px; height:40px;
+    background:url(../../extensions/iscroll/pull-icon.png) 0 0 no-repeat;
+    background-size:40px 80px;
+    margin-right:5px;
+    -webkit-transition-property:-webkit-transform;
+    -webkit-transition-duration:250ms;
+    -webkit-transform:rotate(0);
+}
+
+.iScrollPullDown.flip .iScrollPullDownIcon {
+    -webkit-transform:rotate(-180deg);
+}
+
+.iScrollPullDown.loading .iScrollPullDownIcon,
+.iScrollPullUp.loading .iScrollPullUpIcon {
+    background-position:0 100%;
+    -webkit-animation-name:loading; -moz-animation-name:loading;
+    -webkit-animation-duration:1.5s; -moz-animation-duration:1.5s;
+    -webkit-animation-iteration-count:infinite; -moz-animation-iteration-count:infinite;
+    -webkit-animation-timing-function:linear; -moz-animation-timing-function:linear;
+}
+
+.iScrollPullUp {
+    border-bottom:0;
+}
+
+.iScrollPullUpIcon {
+    -webkit-transform:rotate(-180deg);
+}
+
+.iScrollPullUp.flip .iScrollPullUpIcon {
+    -webkit-transform:rotate(0);
+}
+
+@-webkit-keyframes loading {
+    from { -webkit-transform:rotate(0deg); }
+    to { -webkit-transform:rotate(360deg); }
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:2) {
+    .iScrollPullDownIcon,
+    .iScrollPullUpIcon {
+        background-image:url(../../extensions/iscroll/pull-icon_2x.png);
+    }
+}
+
+
+/* @group Spinner */
+
+/* http://37signals.com/svn/posts/2577-loading-spinner-animation-using-css-and-webkit */
+div.spinner {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  display: inline-block;
+}
+
+div.spinner div {
+  width: 13%;
+  height: 26%;
+  background: #fff;
+  position: absolute;
+  left: 44.5%;
+  top: 37%;
+  opacity: 0;
+}
+
+div.spinner.animate div {
+  -webkit-animation: fade 1s linear infinite; -moz-animation: fade 1s linear infinite;
+  -webkit-border-radius: 50px; -moz-border-radius: 50px; border-radius: 50px;
+  -webkit-box-shadow: 0 0 3px rgba(0,0,0,0.2); -moz-box-shadow: 0 0 3px rgba(0,0,0,0.2); box-shadow: 0 0 3px rgba(0,0,0,0.2);
+}
+
+div.spinner div.bar1 {-webkit-transform:rotate(0deg) translate(0, -142%); -webkit-animation-delay: 0s;}
+div.spinner div.bar2 {-webkit-transform:rotate(30deg) translate(0, -142%); -webkit-animation-delay: -0.9167s;}
+div.spinner div.bar3 {-webkit-transform:rotate(60deg) translate(0, -142%); -webkit-animation-delay: -0.833s;}
+div.spinner div.bar4 {-webkit-transform:rotate(90deg) translate(0, -142%); -webkit-animation-delay: -0.75s;}
+div.spinner div.bar5 {-webkit-transform:rotate(120deg) translate(0, -142%); -webkit-animation-delay: -0.667s;}
+div.spinner div.bar6 {-webkit-transform:rotate(150deg) translate(0, -142%); -webkit-animation-delay: -0.5833s;}
+div.spinner div.bar7 {-webkit-transform:rotate(180deg) translate(0, -142%); -webkit-animation-delay: -0.5s;}
+div.spinner div.bar8 {-webkit-transform:rotate(210deg) translate(0, -142%); -webkit-animation-delay: -0.41667s;}
+div.spinner div.bar9 {-webkit-transform:rotate(240deg) translate(0, -142%); -webkit-animation-delay: -0.333s;}
+div.spinner div.bar10 {-webkit-transform:rotate(270deg) translate(0, -142%); -webkit-animation-delay: -0.25s;}
+div.spinner div.bar11 {-webkit-transform:rotate(300deg) translate(0, -142%); -webkit-animation-delay: -0.1667s;}
+div.spinner div.bar12 {-webkit-transform:rotate(330deg) translate(0, -142%); -webkit-animation-delay: -0.0833s;}
+
+@-webkit-keyframes fade {
+  from {opacity: 1;}
+  to {opacity: 0.25;}
+}
+
+/* @end */
+
+
+
+/* @group Spinner Wheel */
+
+/* http://cubiq.org/spinning-wheel-on-webkit-for-iphone-ipod-touch/11 */
+
+.sw-pressed { opacity:0.4; }
+
+#jqt > * .sw-slots-wrapper {
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    position: absolute; z-index:999;
+    display: block;
+    height: 216px;
+    top: auto; bottom: 0px; left: 0px; right: 0px;
+    border-top: 1px solid black;
+    padding: 0 11px;
+    overflow: hidden;
+    -webkit-transform: translate3d(0, 261px,0);
+    -webkit-transition-property: -webkit-transform;
+    -webkit-transition-duration: 250ms;
+    -webkit-transition-timing-function: linear;
+}
+
+@media only screen and (max-device-width: 320px) and (orientation:landscape) {
+  #jqt > * .sw-slots-wrapper {
+    /* height: 162px; */
+  }
+}
+
+#jqt > *.current .sw-slots-wrapper {
+    -webkit-transform: translate3d(0, 0, 0);
+}
+
+#jqt > * .sw-slots-wrapper .sw-frame {
+    position:absolute; z-index:1000;
+    top: 0; bottom:0; left:0; right:0;
+    border-width:16px;
+    -webkit-border-image:url(../../extensions/spinningwheel/sw-alpha.png) 16;
+}
+
+#jqt > * .sw-slots-wrapper .sw-slots {
+    display:table;
+    width:100%;
+    background:#fcfcfc;
+    text-align: center;
+}
+
+#jqt > * .sw-slots-wrapper .sw-slots div {
+    display:table-cell;
+    height:100%;
+    padding-top:86px;
+    border-left:2px solid #0d0e0f;
+    background-color:#fcfcfc;
+    background-image: url(../../extensions/spinningwheel/sw-slot-border.png);
+    background-position: 0 0, 100% 0;
+    background-repeat: repeat-y;
+    list-style-type: none;
+}
+
+#jqt > * .sw-slots-wrapper ul, #jqt > * .sw-slots-wrapper ul li {
+    display: block;
+    list-style-type: none;
+    padding-right: 5px;
+	color: #000;
+	background: #fff;
+}
+
+#jqt > * .sw-slots-wrapper .sw-slots div:first-child { border:0; }
+
+#jqt > * .sw-slots-wrapper .sw-slots ul {
+    padding:0 0 85px 0; margin:0;
+    list-style:none;
+}
+
+#jqt > * .sw-slots-wrapper .sw-slots .sw-highlight { color: #468CE0; }
+#jqt > * .sw-slots-wrapper .sw-slots .sw-disabled { color: #lightgrey; }
+#jqt > * .sw-slots-wrapper .sw-slots .sw-right { text-align:right; }
+#jqt > * .sw-slots-wrapper .sw-slots .sw-day { color:grey; font-size: 21px; }
+#jqt > * .sw-slots-wrapper .sw-slots .sw-shrink { width:1%; }
+#jqt > * .sw-slots-wrapper .sw-slots .sw-readonly { background:#ddd; }
+
+#jqt > * .sw-slots-wrapper .sw-slots ul li {
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    padding:0 8px;
+    height:44px;
+    overflow:hidden;
+    border: 0px;
+    font:bold 24px/44px Helvetica,sans-serif;
+}
+
+/* @end */
+
+
+
+/* @group Gridview */
+
+#jqt ul.grid, #jqt ul.smallgrid {
+    display: -webkit-box; display: -moz-box; display: box;
+    margin: 0 auto; padding: 0 4px 0 4px;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    -webkit-box-orient: horizontal; -moz-box-orient: horizontal; box-orient: horizontal;
+    -webkit-box-align: stretch;
+    -webkit-box-pack: center;
+}
+
+#jqt ul.smallgrid {
+	padding: 0px 3px;
+}
+
+#jqt ul.grid:first-child {
+    margin-top: 10px;
+}
+
+#jqt ul.grid li, #jqt ul.smallgrid li {
+    /* display: -webkit-box; display: -moz-box; display: box; */
+    display: block; position: relative;
+    -webkit-box-flex: 0;
+    min-height: none;
+    margin-bottom: 15px;
+    border: 0px; border-top: 0px none;
+    font-weight: bold;
+    color: #FFFFFF;
+    text-align: center; text-shadow: 1pt 1pt 1.5pt #000, 0pt 0pt 1pt #808080;
+}
+
+#jqt ul.grid li > a[title]:only-of-type::after {
+    display: block; position: absolute;
+    top: auto; bottom: -12px; left: 0; right: 0;
+    content: attr(title);
+    padding: 0px 5px;
+    color: inherit;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+#jqt ul.grid li > a:only-of-type, #jqt ul.smallgrid li > a:only-of-type {
+    width: auto;
+}
+
+#jqt ul.grid li.active .icon, #jqt ul.smallgrid.active li.active .icon {
+    opacity: 0.8;
+}
+
+#jqt ul.grid li.active a, #jqt ul.smallgrid.active li.active a {
+    text-shadow: 1pt 1pt 1pt rgba(0,0,0,0.7), 0pt 0pt 1pt #808080 !important; /* should get rid of !important usage */
+}
+
+#jqt > * ul.grid.editmode:not(.noshake) li {
+  -webkit-animation-name: shake; -moz-animation-name: shake;
+  -webkit-animation-iteration-count: infinite; -moz-animation-iteration-count: infinite;
+  -webkit-animation-direction: normal; -moz-animation-direction: normal;
+}
+#jqt > * ul.grid.editmode li:nth-child(even) {
+  -webkit-animation-duration: 0.3s; -moz-animation-duration: 0.3s;
+}
+
+#jqt > * ul.grid.editmode li:nth-child(odd) {
+  -webkit-animation-duration: 0.4s; -moz-animation-duration: 0.4s;
+}
+
+#jqt > * ul.grid.editmode li .deleteicon {
+    display: block;
+    position: absolute;
+    min-width: 14px; height: 14px; line-height: 14px;
+    font-size: 14px;
+    -webkit-border-radius: 10px; -moz-border-radius: 10px; border-radius: 10px;
+    text-align: center;
+    top: 4px; left: 0px;
+    padding: 2px 2px 2px 2px;
+    background-color: black;
+    border: 2.5px solid white;
+    color: white;
+    font-weight: bold;
+    -webkit-box-shadow: rgba(0,0,0,0.5) 1.5px 1.5px 4.5px; -moz-box-shadow: rgba(0,0,0,0.5) 1.5px 1.5px 4.5px; box-shadow: rgba(0,0,0,0.5) 1.5px 1.5px 4.5px;
+    z-index: 2;
+}
+
+#jqt > * ul.grid.editmode li .editoricon {
+    display: block;
+    position: absolute;
+    min-width: 14px; height: 14px; line-height: 14px;
+    font-size: 14px;
+    -webkit-border-radius: 10px; -moz-border-radius: 10px; border-radius: 10px;
+    text-align: center;
+    bottom: 4px; right: 0px;
+    padding: 2px 2px 2px 2px;
+    background-color: darkblue;
+    border: 2.5px solid white;
+    color: white;
+    font-weight: bold;
+    -webkit-box-shadow: rgba(0,0,0,0.5) 1.5px 1.5px 4.5px; -moz-box-shadow: rgba(0,0,0,0.5) 1.5px 1.5px 4.5px; box-shadow: rgba(0,0,0,0.5) 1.5px 1.5px 4.5px;
+    z-index: 2;
+}
+
+#jqt > * ul.grid:not(.editmode) li .deleteicon,
+#jqt > * ul.grid.editmode li.nodelete .deleteicon {
+    display: none;
+}
+
+#jqt > * ul.grid:not(.editmode) li .editoricon,
+#jqt > * ul.grid.editmode li.noeditor .editoricon {
+    display: none;
+}
+
+#jqt > * ul.grid.editmode li::after {
+    content: "";
+    display: block; position: absolute;
+    top: 0; bottom: 0; left: 0; right: 0;
+    z-index: 1;
+}
+
+@-webkit-keyframes shake {
+    0%   {
+        -webkit-transform: rotate(0deg);
+        -webkit-animation-timing-function: linear;
+    }
+    25%   {
+        -webkit-transform: rotate(-3deg);
+        -webkit-animation-timing-function: linear;
+    }
+    50%   {
+        -webkit-transform: rotate(0deg);
+        -webkit-animation-timing-function: linear;
+    }
+    75%   {
+        -webkit-transform: rotate(3deg);
+        -webkit-animation-timing-function: linear;
+    }
+    100% {
+        -webkit-transform: rotate(0deg);
+        -webkit-animation-timing-function: linear;
+    }
+}
+
+@-moz-keyframes shake {
+    0%   {
+        -moz-transform: rotate(0deg);
+        -moz-animation-timing-function: linear;
+    }
+    25%   {
+        -moz-transform: rotate(-3deg);
+        -moz-animation-timing-function: linear;
+    }
+    50%   {
+        -moz-transform: rotate(0deg);
+        -moz-animation-timing-function: linear;
+    }
+    75%   {
+        -moz-transform: rotate(3deg);
+        -moz-animation-timing-function: linear;
+    }
+    100% {
+        -moz-transform: rotate(0deg);
+        -moz-animation-timing-function: linear;
+    }
+}
+
+#jqt ul.grid li {
+    font-size: 8pt;
+}
+
+#jqt ul.smallgrid li {
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    font-size: 6.5pt;
+    margin: 9px 1px 0px;
+    padding: 0px 0px;
+    width: 44px;
+}
+
+#jqt ul.grid li a {
+    color: inherit;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    vertical-align: bottom;
+
+}
+
+#jqt h4 {
+    position: relative;
+    margin-left: 15px;
+    color: white;
+    text-shadow: -0.5pt -0.5pt 1.5pt black;
+}
+
+#jqt ul.grid li small.light,
+#jqt ul.smallgrid li small.light {
+    position: absolute;
+    font-size: 8.5pt;
+    min-width: 1.2em;
+    height: 8.5pt;
+    line-height: 8.5pt;
+    -webkit-border-radius: 10px; -moz-border-radius: 10px; border-radius: 10px;
+    text-align: center;
+    top: -6px;
+    right: -7px;
+    padding: 1px 2px 2px 2px;
+    background-color: #303080;
+    border: 2pt solid white;
+    color: white;
+    font-weight: bold;
+    background-image: -webkit-gradient(radial, 50% -130%, 24, 50% 0, 54, from(rgba(255,255,255,0.3)), to(rgba(255,255,255,0.1)),
+      color-stop(4%, rgba(255,255,255,0.3)),
+      color-stop(8%, rgba(31,31,31,0.1)),
+      color-stop(38%, rgba(239,239,239,0.1)));
+}
+
+#jqt ul.grid li small,
+#jqt ul.smallgrid li small {
+    position: absolute;
+    font-size: 10pt;
+    line-height: 1.2em;
+    min-width: 1.2em;
+    height: 1.2em;
+    -webkit-border-radius: 10px; -moz-border-radius: 10px; border-radius: 10px;
+    text-align: center;
+    bottom: 23px;
+    right: -7px;
+    width: auto;
+    padding: 1px;
+    background-color: #C02020;
+    border: 2pt solid white;
+    color: white;
+    font-weight: bold;
+    text-shadow: none;
+    -webkit-box-shadow: rgba(0,0,0,0.5) 1pt 1pt 3pt;
+    background-image: -webkit-gradient(radial, 50% -130%, 28, 50% 0, 56, from(rgba(255,255,255,0.3)), to(rgba(255,255,255,0.1)),
+      color-stop(4%, rgba(255,255,255,0.3)),
+      color-stop(8%, rgba(31,31,31,0.1)),
+      color-stop(38%, rgba(239,239,239,0.1)));
+}
+
+#jqt ul.grid li .icon .mask,
+#jqt ul.smallgrid li .icon .mask {
+    width: 100%;
+    height: 100%;
+    -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px;
+    background-image: -webkit-gradient(radial, 50% -58%, 40, 50% -35%, 135, from(rgba(255,255,255,0.35)), to(rgba(255,255,255,0)),
+      color-stop(3%, rgba(255,255,255,0.3)),
+      color-stop(22%, rgba(239,239,239,0)),
+      color-stop(22%, rgba(31,31,31,0.2)),
+      color-stop(35%, rgba(127,127,127,0.1)),
+      color-stop(38%, rgba(239,239,239,0.1)));
+    background-image: -moz-radial-gradient(50% -80%, circle contain, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.5) 200%, rgba(255, 255, 255, 0.2) 265%, rgba(255, 255, 255, 0.05));
+}
+
+#jqt ul.smallgrid li .icon38 .mask {
+    width: 38px;
+    height: 38px;
+}
+
+#jqt ul.grid li .icon,
+#jqt ul.smallgrid li .icon {
+    display: block;
+    width: 57px;
+    height: 57px;
+    background-size: cover;
+    background-position: 50% 50%;
+    -webkit-background-origin: content-box;
+    background-color: white;
+    -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px;
+    -webkit-box-shadow: rgba(0,0,0,0.5) 2pt 2pt 4pt; -moz-box-shadow: rgba(0,0,0,0.5) 2pt 2pt 4pt; box-shadow: rgba(0,0,0,0.5) 2pt 2pt 4pt;
+}
+
+#jqt ul.grid li.active .icon,
+#jqt ul.smallgrid li.active .icon {
+    -webkit-box-shadow: rgba(0,0,0,0.5) 1pt 1pt 4pt; -moz-box-shadow: rgba(0,0,0,0.5) 1pt 1pt 4pt; box-shadow: rgba(0,0,0,0.5) 1pt 1pt 4pt;
+}
+
+#jqt ul.grid li .icon:active,
+#jqt ul.smallgrid li .icon:active {
+    background-color: #606070;
+}
+
+/* @end */
+
+
+
+/* @group */
+
+#jqt ul {
+    font: normal 13pt Helvetica;
+    font-color: #AAA;
+    color: #AAA;
+    font-size: 18px;
+    -webkit-padding-start: 0px;
+    /* moz specific */
+    display: -moz-box;
+    -moz-box-orient: vertical;
+    -moz-box-sizing: border-box;
+}
+
+#jqt ul.row {
+    position: absolute;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    z-index: 99;
+    height: 78px;
+    width: 100%;
+    border-top: 1px solid #666;
+    border-bottom: 1px solid #666;
+    padding: 0 10px;
+    margin: auto;
+    text-align: right;
+    font-size: 7pt;
+    background-color: rgba(255, 255, 255, 0.5);
+    -webkit-box-shadow: 0 0 16px #BBB;
+    -webkit-transition-property: opacity;
+    -webkit-transition-duration: 500ms;
+    -webkit-transition-timing-function: linear;
+    opacity: 1;
+    overflow: hidden;
+}
+
+#jqt ul.row.t-hide {
+    opacity: 0;
+    -webkit-transition-property: opacity;
+    -webkit-transition-duration: 175ms;
+    -webkit-transition-timing-function: linear;
+}
+
+#jqt ul.row li {
+    display: inline-block;
+    font: 7pt;
+    line-height: 8pt;
+    width: 60px;
+    border: 0px transparent;
+    background: transparent;
+    padding: 3px 12px 3px 12px;
+    margin: 0;
+    font-size: 8pt;
+    background-repeat: no-repeat;
+    color: #fff;
+    text-align: center;
+    text-shadow: 1pt 1pt 1.5pt #000;
+}
+
+/* @end */
+
+
+
+/* @group Button */
+
+#jqt .pushbutton, #jqt .whiteButton, #jqt .grayButton,
+#jqt .redButton, #jqt .blueButton, #jqt .greenButton {
+    display: block;
+    border-width: 0 12px;
+    margin: 10px 10px;
+    padding: 10px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    text-decoration: inherit;
+    color: inherit;
+}
+
+#jqt .whiteButton, #jqt .pushbutton.white {
+    -webkit-border-image: url(img/whiteButton.png) 0 12 0 12;
+    text-shadow: rgba(255, 255, 255, 0.7) 0 1px 0;
+}
+
+#jqt .grayButton, #jqt .pushbutton.gray {
+    -webkit-border-image: url(img/grayButton.png) 0 12 0 12;
+    color: #FFFFFF;
+}
+
+#jqt .redButton, #jqt .pushbutton.red {
+    -webkit-border-image: url(img/redButton.png) 0 12 0 12;
+    color: #FFFFFF;
+}
+
+#jqt .greenButton, #jqt .pushbutton.green {
+    -webkit-border-image: url(img/greenButton.png) 0 12 0 12;
+    color: #FFFFFF;
+}
+
+#jqt .blueButton, #jqt .pushbutton.blue {
+    -webkit-border-image: url(img/blueButton.png) 0 12 0 12;
+    color: #FFFFFF;
+}
+
+#jqt .pushbutton:active, #jqt .pushbutton.active,
+#jqt .whiteButton:active, #jqt .grayButton:active, #jqt .redButton:active, #jqt .blueButton:active, #jqt .greenButton:active,
+#jqt .whiteButton:active, #jqt .grayButton:active, #jqt .redButton:active, #jqt .blueButton:active, #jqt .greenButton:active {
+    -webkit-border-image: url(img/activeButton.png) 0 12 0 12;
+}
+
+/* @end */
+
+
+
+/* @group Lists */
+
+#jqt h1 + ul, #jqt h2 + ul, #jqt h3 + ul, #jqt h4 + ul, #jqt h5 + ul, #jqt h6 + ul {
+    margin-top: 0;
+}
+
+#jqt ul, #jqt fieldset.rounded {
+    color: black;
+    font-weight: bold;
+    font-size: 13pt;
+    line-height: 21pt;
+    padding: 0;
+    margin: 15px 10px 17px 10px;
+    list-style-type: none;
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#4c4d4e), to(#404142));
+}
+
+#jqt ul.rounded, #jqt fieldset.rounded {
+    background-color: #fff;
+    -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px;
+    -webkit-box-shadow: #999 0px 0px 2px;
+}
+
+#jqt fieldset.rounded ul.rounded {
+    margin: -15px -10px -17px -10px;
+}
+
+#jqt fieldset.rounded > *, #jqt fieldset.rounded > * > a:only-of-type {
+    border-style: none;
+    border-width: 0;
+    -webkit-border-radius: 0; -moz-border-radius: 0; border-radius: 0;
+}
+
+#jqt fieldset.rounded {
+    border: none;
+}
+
+#jqt fieldset.rounded input[type="radio"] {
+    display: -webkit-box; display: -moz-box; display: box;
+    -webkit-appearance: none;
+    -webkit-box-pack: justify;
+    -webkit-box-align: center;
+    -webkit-box-orient: horizontal; -moz-box-orient: horizontal; box-orient: horizontal;
+    width: 100%;
+    line-height: 28px;
+    font-size: 28px;
+    font-weight: bold;
+    color: inherit;
+}
+
+#jqt fieldset.rounded > input[type="radio"] {
+    min-height: 44px;
+    background-color: #FFF;
+    color: Black;
+}
+
+#jqt ul.rounded > li:first-child, #jqt ul.rounded > li:first-child > a:only-of-type,
+#jqt fieldset.rounded > *:first-child, #jqt fieldset.rounded > *:first-child > a:only-of-type {
+    border-top: 0;
+    -webkit-border-top-left-radius: 8px;
+    -webkit-border-top-right-radius: 8px;
+    -moz-border-top-left-radius: 8px;
+    -moz-border-top-right-radius: 8px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+#jqt ul.rounded > li:last-child, #jqt ul.rounded > li:last-child > a:only-of-type,
+#jqt fieldset.rounded > *:last-child, #jqt fieldset.rounded > *:last-child > a:only-of-type {
+    -webkit-border-bottom-left-radius: 8px;
+    -webkit-border-bottom-right-radius: 8px;
+    -moz-border-bottom-left-radius: 8px;
+    -moz-border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+#jqt ul li, #jqt fieldset.rounded > * {
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    font-size: inherit;
+    color: #FFF;
+    border-top: 1px solid #333;
+    list-style-type: none;
+    padding: 10px;
+    line-height: 23px;
+    -webkit-transform: translate3d(0,0,0); /* expensive way to avoid flickr */
+    min-height: 44px;
+}
+
+#jqt ul li > a, #jqt fieldset.rounded > * > a:only-of-type {
+    margin: -10px;
+    padding: 10px;
+}
+
+#jqt fieldset.rounded > a {
+    display: block;
+    text-decoration:none
+}
+
+#jqt ul.mail li {
+    height: 78px;
+    color: #000;
+    line-height: 22px;
+    padding-left: 30px;
+    padding-right: 10px;
+    padding-top: 1px;
+    padding-bottom: 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#jqt ul.mail li > a {
+    margin: -15px;
+    padding: 15px;
+}
+
+#jqt ul li:empty {
+    min-height: 0px;
+    height: 0px;
+    border: 0px solid;
+    padding: 0;
+    margin: 0;
+    outline: 0;
+}
+
+#jqt ul.mail li .date {
+    position: relative;
+    color: #2470D8;
+    float: right;
+    top: 2px;
+    font-size: 15px;
+    line-height: 18px;
+    font-weight: 100;
+}
+
+#jqt ul.mail li .title {
+    display: block;
+    font-size: 14px;
+    padding-right: 5px;
+    line-height: 16px;
+    font-weight: normal;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow-x: hidden;
+}
+
+#jqt ul.mail li p {
+    font-size: 13.5px;
+    font-weight: normal;
+    line-height: 15.5px;
+    height: 31px;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; -moz-box-orient: vertical; box-orient: vertical;
+    padding-right: 5px;
+    text-overflow: ellipsis;
+    white-space: normal;
+    overflow: hidden;
+}
+
+#jqt ul li.arrow, #jqt ul li.forward, #jqt ul li.check, #jqt fieldset.rounded > input[type="radio"], #jqt fieldset.rounded > a {
+    padding-right: 30px;
+}
+
+#jqt ul li.arrow > a:only-of-type, #jqt ul li.forward > a:only-of-type, #jqt ul li.check > a {
+    margin-right: -30px;
+    padding-right: 30px;
+}
+
+#jqt ul li > a:only-of-type {
+    /* universal links on list */
+    display: block; position: relative;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    width: 100%;
+    color: inherit;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin: -10px;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+#jqt > * ul.mail li .icon.arrow::before {
+    display: block; position: relative;
+    top: 15px; left: 30px; width: 27px; height: 27px;
+    background-image: url(img/blue_arrow_27px.png);
+    background-position: center;
+    background-repeat: no-repeat;
+    content: "";
+}
+
+#jqt ul li.icon,
+#jqt ul li a.icon {
+    text-indent: 44px;
+    background-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
+    background-size: contain;
+    -webkit-background-size: contain;
+    -webkit-background-origin: content-box;
+    -webkit-mask-origin: content-box;
+}
+
+#jqt ul li.centeredicon,
+#jqt ul li a.centeredicon {
+    min-width: 60px;
+    -webkit-box-flex: 1;
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+}
+
+#jqt ul.edgetoedge li.icon,
+#jqt ul.edgetoedge li a.icon {
+    -webkit-background-origin: border-box;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+}
+
+#jqt ul li.active, #jqt ul li.arrow > a.active, #jqt fieldset.rounded > *.active {
+    color: #fff;
+    text-shadow: none;
+}
+
+#jqt ul li.active *, #jqt ul li.forward *, #jqt ul li.arrow > a.active * {
+    color: inherit !important; /* should get rid of !important usage */
+    text-shadow: none !important;
+}
+
+#jqt ul li.arrow, #jqt fieldset.rounded > a {
+    background-image: url(img/chevron.png), none, none;
+    background-position: right center, 6px center, left top;
+    background-repeat: no-repeat, no-repeat, no-repeat;
+}
+
+#jqt ul li.arrow.unread {
+    background-image: url(img/chevron.png), url(img/blueball.png), none;
+}
+
+#jqt ul li.forward {
+    background-image: url(img/chevron.png), none, none; /* @TODO@ - using only regular chervon now */
+    background-position: right center, 6px center, left top;
+    background-repeat: no-repeat, no-repeat, no-repeat;
+}
+
+#jqt ul li.check, #jqt fieldset.rounded > input[type="radio"]:checked {
+    background-image: url(img/check.png), none, none;
+    background-position: right center, 6px center, left top;
+    background-repeat: no-repeat, no-repeat, no-repeat;
+    padding-right: 30px;
+}
+
+#jqt fieldset.rounded > a > input[type="radio"]:checked {
+    background-image: url(img/check.png);
+    background-position: right center;
+    background-repeat: no-repeat;
+    padding-right: 30px;
+}
+
+#jqt ul li.selected, #jqt ul li > a.selected {
+    background-image: none, none, -webkit-gradient(linear, left top, left bottom, from(#9cc472), to(#6eb623)) !important;
+    color: white;
+}
+
+#jqt > * ul.childrenactivable > li.active,
+#jqt > * ul.edgetoedge > li.active,
+#jqt > * ul.mail > li.active,
+#jqt > * ul.rounded > li.active,
+#jqt > * ul.plastic > li.active,
+#jqt > * ul.metal > li.active {
+    background-image: none, none, -webkit-gradient(linear, left top, left bottom, from(#9cc472), to(#6eb623)) !important;
+}
+
+#jqt ul li.arrow.active, #jqt ul li.forward.active, #jqt > * fieldset.rounded > a.active {
+    background-image: url(img/chevron.png), none, -webkit-gradient(linear, left top, left bottom, from(#9cc472), to(#6eb623)) !important;
+}
+
+#jqt ul li.arrow.unread.active {
+    background-image: url(img/chevron.png), url(img/blueball.png), -webkit-gradient(linear, left top, left bottom, from(#9cc472), to(#6eb623)) !important;
+}
+
+#jqt ul li.check.active, #jqt fieldset.rounded > input[type="radio"]:checked:active {
+    background-image: url(img/check_white.png), none, -webkit-gradient(linear, left top, left bottom, from(#9cc472), to(#6eb623));
+    color: white;
+}
+
+#jqt fieldset.rounded > input[type="radio"]:not(:checked):active {
+    background-image: none, none, -webkit-gradient(linear, left top, left bottom, from(#9cc472), to(#6eb623));
+}
+
+#jqt fieldset.rounded > a.active > input[type="radio"]:checked {
+    background-image: url(img/check_white.png);
+}
+
+#jqt fieldset.rounded > input[type="radio"]:not(:active) {
+    -webkit-transition-property: background-color, color;
+    -webkit-transition-duration: 350ms, 200ms;
+    -webkit-transition-timing-function: linear, linear;
+}
+
+#jqt fieldset.rounded > input[type="radio"]:active {
+    background-color: #6eb623;
+    color: white;
+}
+
+#jqt ul li.forward.active {
+    background-image: url(img/chevron_circle.png);
+}
+
+/* items (.img) below does not seem to be used anywhere in the example. */
+#jqt li.img a + a {
+    /* universal links on list */
+    color: inherit;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+#jqt ul li.img a + a {
+    margin: -10px 10px -20px -5px;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+#jqt ul li.img a + a + a {
+    font-size: 14px;
+    font-weight: normal;
+    margin-left: -10px;
+    margin-bottom: -10px;
+    margin-top: 0;
+}
+
+#jqt ul li.img a + small + a {
+    margin-left: -5px;
+}
+
+#jqt ul li.img a + small + a + a {
+    margin-left: -10px;
+    margin-top: -20px;
+    margin-bottom: -10px;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+#jqt ul li.img a + small + a + a + a {
+    margin-left: 0px !important;
+    margin-bottom: 0;
+}
+
+#jqt ul li a + a + a, #jqt ul li.img a + a + a + a, #jqt ul li.img a + small + a + a + a {
+    /* color: #666; */
+    font: 13px "Helvetica Neue", Helvetica;
+    margin: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
+    padding: 0;
+}
+
+/* @end */
+
+
+
+/* @group Forms */
+#jqt form ul li, #jqt ul.form li,
+#jqt form ul li > a:only-of-type, #jqt ul.form li > a:only-of-type,
+#jqt form ul li.multiline > div, #jqt ul.form li.multiline > div,
+#jqt form ul li > a.multiline > div, #jqt ul.form li > a.multiline > div {
+    display: -webkit-box; display: -moz-box; display: box;
+    -webkit-box-orient: horizontal; -moz-box-orient: horizontal; box-orient: horizontal;
+    -webkit-box-pack: justify;
+    -webkit-box-align: stretch;
+    -webkit-box-flex: 2; -moz-box-flex: 2; box-flex: 2;
+}
+
+#jqt ul.metal li > a:only-of-type,
+#jqt ul.grid li > a:only-of-type,
+#jqt ul.individual li > a:only-of-type {
+    /* backward compatiablity to existing metal */
+    display: block;
+}
+
+#jqt form ul li.multiline, #jqt ul.form li.multiline,
+#jqt form ul li > a.multiline, #jqt ul.form li > a.multiline {
+    -webkit-box-orient: vertical; -moz-box-orient: vertical; box-orient: vertical;
+    -webkit-box-lines: multiple;
+    box-lines: multiple;
+}
+
+#jqt form ul li.multiline > div, #jqt ul.form li.multiline > div,
+#jqt form ul li > a.multiline > div, #jqt ul.form li > a.multiline > div {
+    display: -webkit-box; display: -moz-box; display: box;
+    -webkit-box-flex: 10;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+}
+
+#jqt form ul li.noflex, #jqt ul.form li.noflex,
+#jqt form ul.noflex li, #jqt ul.form.noflex li,
+#jqt form ul li > a.noflex:only-of-type, #jqt ul.form li > a.noflex:only-of-type,
+#jqt form ul.noflex li > a:only-of-type, #jqt ul.form.noflex li > a:only-of-type {
+    display: block;
+}
+
+#jqt ul.form li:hover {
+    background-color: #444;
+}
+
+#jqt form {
+    /* -webkit-box-shadow: inset 0 0 2px #444; */
+}
+
+#jqt ul.form li, #jqt fieldset.rounded input[type="radio"] {
+    /* padding: 7px 10px;*/
+}
+
+#jqt ul.form li.error {
+    border: 2px solid red;
+}
+
+#jqt ul.form li.error + li.error {
+    border-top: 0;
+}
+
+#jqt ul li p {
+    position: relative;
+    width: 100%;
+    color: gray;
+    font-size: 9pt;
+    font-weight: lighter;
+    line-height: 10pt;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+#jqt ul li input[type="text"],
+#jqt ul li input[type="password"],
+#jqt ul li input[type="tel"],
+#jqt ul li input[type="search"],
+#jqt ul li input[type="email"],
+#jqt ul li input[type="url"],
+#jqt ul li textarea,
+#jqt ul li select {
+    display: -webkit-box; display: -moz-box; display: box;
+    position: relative;
+    /* background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, white), color-stop(1, white)); */
+    background-color: transparent;
+    border: 0; border: 1px solid transparent;
+    padding: 0;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    -webkit-text-size-adjust: none;
+    -webkit-appearance: none;
+    -webkit-user-select: text;
+}
+
+#jqt ul li.selected input[type="text"],
+#jqt ul li.selected input[type="password"],
+#jqt ul li.selected input[type="tel"],
+#jqt ul li.selected input[type="search"],
+#jqt ul li.selected input[type="email"],
+#jqt ul li.selected input[type="url"],
+#jqt ul li.selected textarea,
+#jqt ul li.selected select {
+     color: white;
+}
+
+#jqt ul li .value,
+#jqt ul li input[type="text"],
+#jqt ul li input[type="password"],
+#jqt ul li input[type="tel"],
+#jqt ul li input[type="number"],
+#jqt ul li input[type="search"],
+#jqt ul li input[type="email"],
+#jqt ul li input[type="url"],
+#jqt ul li textarea,
+#jqt ul li select {
+    font: bold 13pt Helvetica;
+    font-color: #64c114;
+    color: #64c114;
+}
+
+#jqt ul li.input::before {
+    /* override default input shadow */
+    display: block;
+    position: absolute;
+    content: "";
+    top: 0; bottom: 0; left: 0; right: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+#jqt > * ul.inputguard > li:not(.inputguardoff) > a:only-child::after,
+#jqt > * ul > li.inputguard > a:only-child::after,
+#jqt > * ul > li > a.inputguard:only-child::after {
+    display: block; position: absolute;
+    top: 0; bottom: 0; left: 0; right: 0;
+    content: "";
+}
+
+#jqt ul li input[type="text"],
+#jqt ul li input[type="password"],
+#jqt ul li input[type="tel"],
+#jqt ul li input[type="number"],
+#jqt ul li input[type="search"],
+#jqt ul li input[type="email"],
+#jqt ul li input[type="url"],
+#jqt ul li select  {
+    -webkit-box-flex-group: 1;
+    -webkit-box-flex: 10;
+    -moz-box-flex-group: 1;
+    -moz-box-flex: 10;
+    line-height: 24px;
+}
+
+#jqt form ul li label, #jqt ul.form li label {
+    position: relative;
+    float: left;
+    text-overflow: ellipsis;
+    text-align: left;
+    min-width: 90px;
+    padding-right: 10px;
+    overflow: hidden;
+    white-space: nowrap;
+    -webkit-user-select: auto;
+}
+
+#jqt form ul li label.tight, #jqt ul.form li label.tight {
+    min-width: 0;
+}
+
+#jqt form ul li input:focus + small {
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    position: relative;
+    font-size: 10pt;
+    min-width: 19pt;
+    height: 19pt;
+    -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px;
+    text-align: center;
+    width: auto;
+    padding: 1px;
+    background-color: #7070C0;
+    border: 2.5pt solid white;
+    color: white;
+    font-weight: bold;
+    text-shadow: none;
+    /* background-size: contain; */
+    background-position: center center;
+    -webkit-background-origin: content-box;
+    -webkit-box-shadow: rgba(0,0,0,0.5) 1pt 1pt 3pt;
+    background-image: -webkit-gradient(radial, 50% -130%, 24, 50% 0, 54, from(rgba(255,255,255,0.3)), to(rgba(255,255,255,0.1)),
+      color-stop(4%, rgba(255,255,255,0.3)),
+      color-stop(8%, rgba(31,31,31,0.1)),
+      color-stop(38%, rgba(239,239,239,0.1))),
+      color-stop(80%, #FFF)),
+      color-stop(100%, #FFF));
+}
+
+#jqt form ul li input:focus + small.plus {
+    background-image: url(img/plus.png);
+    background-repeat: no-repeat;
+}
+
+#jqt form ul li label + input, #jqt ul.form li label + input {
+    text-align: left;
+}
+
+#jqt form ul li label + input[readonly], #jqt ul.form li label + input[readonly],
+#jqt form ul li label.tight + input, #jqt ul.form li label.tight + input {
+    text-align: right;
+}
+
+#jqt form ul li textarea, #jqt ul.form li textarea {
+    width: 100%;
+    min-height: 120px;
+    font-size: inherited;
+    -webkit-user-select: auto;
+    -webkit-box-flex: 1;
+}
+
+#jqt form ul li select, #jqt ul.form li select {
+    background-color: transparent;
+    background-image: url(img/chevron.png);
+    background-repeat: no-repeat;
+    background-position: 102% center;
+    -webkit-appearance: textfield;
+    -webkit-user-select: auto;
+}
+
+#jqt form ul li input[type="checkbox"], #jqt ul.form li input[type="checkbox"] {
+    margin: 0;
+    color: #324F85;
+    padding: 10px 10px;
+}
+
+#jqt fieldset.rounded > input[type="radio"] {
+    margin: 0;
+    padding: 10px 10px;
+}
+
+#jqt fieldset.rounded > input[type="radio"]:active {
+    color: #fff;
+}
+
+#jqt fieldset.rounded input[type="radio"]:checked {
+    color: #324F85;
+}
+
+#jqt form ul li input[type="checkbox"]::before, #jqt ul.form li input[type="checkbox"]::before,
+#jqt form ul li input[readonly]::before, #jqt ul.form li input[readonly]::before,
+#jqt fieldset.rounded input[type="radio"]::before {
+    display: block;
+    -webkit-box-flex: 10;
+    content: attr(title);
+    font: 17px "Helvetica Neue", Helvetica;
+    font-weight: bold;
+    vertical-align: center;
+    line-height: 28px;
+}
+
+#jqt fieldset.rounded input[type="radio"][title][value].showvalue:checked::after {
+    display: block;
+    content: attr(value);
+    font: 17px "Helvetica Neue", Helvetica;
+    font-weight: normal;
+    vertical-align: center;
+    text-align: right;
+}
+
+#jqt fieldset.rounded input[type="radio"][title][displayvalue].showvalue:checked::after {
+    display: block;
+    content: attr(displayvalue);
+    font: 17px "Helvetica Neue", Helvetica;
+    font-weight: normal;
+    vertical-align: center;
+    text-align: right;
+}
+
+#jqt fieldset.rounded > a > input[type="radio"] {
+    background-color: transparent;
+    border: 0px solid transparent;
+}
+
+#jqt fieldset.rounded a.active > input[type="radio"] {
+    color: #fff;
+}
+
+#jqt form > h1, #jqt form > :not(.toolbar) h1, #jqt .form :not(.toolbar) > h1 {
+    margin: 0;
+    padding: 10px 20px 2px 20px;
+    color: white;
+    font: bold 13.5pt "Helvetica Neue", Helvetica;
+    text-shadow: rgba(0,0,0,.2) 1px 1px 1px;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#jqt form > h2, #jqt form > :not(.toolbar) h2, #jqt .form :not(.toolbar) > h2 {
+    margin: 0;
+    padding: 10px 20px 2px 20px;
+    color: #3e9ac3;
+    font: bold 12pt "Helvetica Neue", Helvetica;
+    text-shadow: rgba(0,0,0,.2) 1px 1px 1px;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#jqt form > h3, #jqt form > :not(.toolbar) h3, #jqt .form :not(.toolbar) > h3 {
+    padding-left: 10px;
+    padding-right: 5px;
+    font: bold 10pt "Helvetica Neue", Helvetica;
+    color: rgb(63,63,63);
+    text-shadow: rgba(255,255,255,1) 0pt 1pt 1pt, rgba(127,127,127,1) -1pt 0pt 1pt;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#jqt form > h4,
+#jqt form > :not(.toolbar):not(.navibar) h4,
+#jqt .form :not(.toolbar):not(.navibar) > h4 {
+    padding-left: 10px;
+    padding-right: 5px;
+    font: 8.5pt "Helvetica Neue", Helvetica;
+    padding-top: 7px;
+    color: grey;
+    text-shadow: rgba(255,255,255,1) -1pt -1pt 2pt, rgba(255,255,255,1) 1pt 1pt 1pt;
+}
+
+#jqt ul li h4 {
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    position: absolute;
+    padding-left: 10px;
+    padding-right: 5px;
+    font: 8.5pt "Helvetica Neue", Helvetica;
+    padding-top: 7px;
+    color: grey;
+    text-shadow: rgba(255,255,255,1) -1pt -1pt 2pt, rgba(255,255,255,1) 1pt 1pt 1pt;
+    top: 22px;
+    left: 85px;
+    right: 0px;
+}
+
+#jqt ul li input[type="checkbox"].onoff {
+    display: block;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    -webkit-appearance: none;
+    position: relative;
+    width: 94px;
+    height: 27px;
+    overflow: hidden;
+    margin-left: auto;
+    padding-left: auto;
+    float: right;
+    right: 0px;
+    border-style: none;
+    border-width: 0;
+    border-radius: 4px;
+    background-position: -55px 0;
+    -webkit-transition: background-position .15s;
+}
+
+#jqt input[type="checkbox"].onoff:checked {
+    background-position: 0 center;
+    -webkit-transition: background-position .15s;
+}
+
+/* @end */
+
+
+
+/* @group Edge to edge */
+#jqt ul.edgetoedge, #jqt ul.edgetoedge * {
+    -webkit-border-radius: 0 !important;
+    -moz-border-radius: 0 !important;
+}
+
+#jqt ul.edgetoedge li.sep, #jqt ul.mail li.sep {
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(0,0,0,0)), to(rgba(0,0,0,.5)));
+    border-bottom: 1px solid #111113;
+    border-top: 1px solid #666;
+    color: #3e9ac3;
+    font-size: 13pt;
+    line-height: 14px;
+    margin: 0;
+    padding: 3px 10px;
+    text-shadow: #000 0 1px 0;
+    min-height: 22px !important;
+    height: 22px !important;
+    width: 100%;
+}
+
+/* Stacked ul with implicit sep */
+#jqt ul.edgetoedge.stacked, ul.mail.stacked {
+    border-top: 0px solid transparent;
+    border-bottom: 0px solid transparent;
+}
+
+#jqt ul.edgetoedge.stacked::before, #jqt ul.mail.stacked::before {
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    display: block;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(0,0,0,0)), to(rgba(0,0,0,.5)));
+    border-bottom: 1px solid #111113;
+    border-top: 1px solid #666;
+    color: #3e9ac3;
+    font-size: 14px;
+    line-height: 14px;
+    margin: 0;
+    padding: 3px 10px;
+    text-shadow: #000 0 1px 0;
+    min-height: 22px !important;
+    height: 22px !important;
+    content: attr(title);
+}
+
+#jqt ul.edgetoedge li {
+}
+
+#jqt .edgetoedge h4 {
+    color: #fff;
+    background: rgb(154,159,170) url(img/listGroup.png) top left repeat-x;
+    border-top: 1px solid rgb(165,177,186);
+    text-shadow: #666 0 1px 0;
+    margin: 0;
+    padding: 2px 10px;
+}
+
+#jqt .edgetoedge, #jqt .metal {
+    margin: 0;
+    padding: 0;
+    background-color: rgb(255,255,255);
+}
+
+#jqt ul.edgetoedge, #jqt ul.metal, #jqt ul.plastic, #jqt ul.mail, #jqt ul.message {
+    -webkit-border-radius: 0; -moz-border-radius: 0; border-radius: 0;
+    margin: 0;
+    border-left: 0;
+    border-right: 0;
+    border-top: 0;
+}
+
+#jqt ul.metal {
+    border-top: 0;
+    border-bottom: 0;
+    background: rgb(180,180,180);
+}
+
+#jqt ul.mail, #jqt ul.message {
+    background: white;
+}
+
+#jqt ul.edgetoedge li:first-child,
+#jqt ul.edgetoedge li:first-child > a:only-of-type,
+#jqt ul.edgetoedge li:last-child,
+#jqt ul.edgetoedge li:last-child > a:only-of-type,
+#jqt ul.mail li:first-child,
+#jqt ul.mail li:first-child > a:only-of-type,
+#jqt ul.mail li:last-child,
+#jqt ul.mail li:last-child > a:only-of-type,
+#jqt ul.message li:first-child,
+#jqt ul.message li:first-child > a:only-of-type,
+#jqt ul.message li:last-child,
+#jqt ul.message li:last-child > a:only-of-type,
+#jqt ul.metal li:first-child,
+#jqt ul.metal li:first-child > a:only-of-type,
+#jqt ul.metal li:last-child,
+#jqt ul.metal li:last-child > a:only-of-type {
+    -webkit-border-radius: 0; -moz-border-radius: 0; border-radius: 0;
+}
+
+#jqt ul.edgetoedge li small {
+    font-size: 16px;
+    line-height: 28px;
+}
+
+#jqt .edgetoedge li, #jqt .metal li {
+    -webkit-border-radius: 0; -moz-border-radius: 0; border-radius: 0;
+}
+
+#jqt .edgetoedge li em {
+    font-weight: normal;
+    font-style: normal;
+}
+
+#jqt > * > .contentwrap ul.message.content {
+    display: -webkit-box; display: -moz-box; display: box;
+    position: relative;
+    width: 100%;
+    -webkit-box-orient: vertical; -moz-box-orient: vertical; box-orient: vertical;
+    -webkit-box-pack: start;
+    -webkit-box-align: stretch;
+}
+
+#jqt .edgetoedge h4 + ul {
+    border-top: 1px solid rgb(152,158,164);
+    border-bottom: 1px solid rgb(113,125,133);
+}
+
+#jqt ul.message li.contact.label,
+#jqt ul.message li.details.label {
+    color: #888;
+    font-size: 12px;
+    font-weight: 75;
+}
+
+#jqt ul.message li.details {
+}
+
+#jqt ul.message li.title {
+    display: -webkit-box; display: -moz-box; display: box;
+    font-size: 9pt;
+    font-weight: normal;
+    line-height: 16px;
+    height: 26pt;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; -moz-box-orient: vertical; box-orient: vertical;
+    text-overflow: ellipsis;
+    white-space: normal;
+    overflow: hidden;
+}
+
+#jqt ul.message .paragraph {
+    display: block;
+    /* display: -webkit-box; */
+    position: relative;
+    font-weight: normal;
+    font-size: 13px;
+    -webkit-box-flex: 10;
+    top: 0; bottom: 0;
+    background-color: lightgrey;
+}
+
+#jqt ul.message li.title .span {
+}
+
+/* @end */
+
+
+
+/* @group Mini Label */
+
+#jqt ul li small {
+    color: #369;
+    font: 17px "Helvetica Neue", Helvetica;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
+    width: 23%;
+    padding: 3px 0px;
+}
+
+#jqt ul li.arrow small {
+    padding: 0 15px;
+}
+
+#jqt ul li small.counter {
+	border: 2px solid #FFF;
+    position: absolute;
+    font-size: 15px !important;
+    line-height: 17px !important;
+    font-weight: bold;
+    background-color: #64c114;
+    color: #FFF;
+    -webkit-border-radius: 14px; -moz-border-radius: 14px; border-radius: 14px;
+    padding: 2px 5px 2px 5px;
+    width: auto;
+    top: 10px;
+	right: 50px;
+}
+
+#jqt ul li.arrow small.counter {
+    margin-right: 0px;
+}
+
+/* @end */
+
+
+
+/* @group Metal */
+
+#jqt ul.metal li {
+    border-top: 1px solid #FFF;
+    border-bottom: 1px solid #666;
+    font-size: 26px;
+    text-shadow: #fff 0 1px 0;
+    background-image: none, -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(238,238,238,1)), to(rgba(156,158,160,1)));
+    background-position: right center, left top;
+    background-repeat: no-repeat;
+    padding: 10px;
+}
+
+#jqt ul.metal li a {
+    line-height: 26px;
+    margin: 0;
+    padding: 23px 10px;
+    margin: -10px -10px;
+}
+
+#jqt ul.metal li a em {
+    display: block;
+    font-size: 14px;
+    font-style: normal;
+    color: #444;
+    width: 50%;
+    line-height: 14px;
+}
+
+#jqt ul.metal li.active a em {
+    color: inherit;
+}
+
+#jqt ul.metal li small {
+    float: right;
+    right: 25px;
+    color: inherit;
+    position: relative;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+#jqt ul.metal li.arrow a small {
+    padding-right: 0;
+    line-height: 17px;
+}
+
+#jqt ul.metal li.arrow {
+    background-image: url(img/chevron.png), -webkit-gradient(linear, 0% 0%, 0% 100%, from(#dadadc), to(#b4b3b8));
+    background-position: right center, left top;
+    background-repeat: no-repeat;
+}
+
+#jqt ul.plastic {
+    margin: 0;
+    padding: 0;
+    background: #17181a;
+	color: #aaa;
+}
+
+#jqt ul.plastic {
+    -webkit-border-radius: 0; -moz-border-radius: 0; border-radius: 0;
+    margin: 0;
+    border-left: 0;
+    border-right: 0;
+    border-top: 0;
+    background-color: #17181a;
+}
+
+#jqt ul.plastic li {
+    display: block;
+    -webkit-border-radius: 0; -moz-border-radius: 0; border-radius: 0;
+    border-top: 1px solid rgb(191,191,191);
+    border-bottom: 1px solid rgb(157,157,157);
+}
+
+#jqt ul.plastic li:nth-child(odd) {
+    background-color: rgb(152,152,152);
+    border-top: 1px solid rgb(181,181,181);
+    border-bottom: 1px solid rgb(138,138,138);
+}
+
+#jqt ul.plastic + p {
+    font-size: 11px;
+    color: #2f3237;
+    text-shadow: none;
+    padding: 10px 10px;
+}
+
+#jqt ul.plastic p strong {
+    font-size: 14px;
+    line-height: 18px;
+    text-shadow: #333 0 1px 0;
+}
+
+#jqt ul.plastic li a {
+    text-shadow: rgb(211,211,211) 0 1px 0;
+}
+
+#jqt ul.plastic li:nth-child(odd) a {
+    text-shadow: rgb(191,191,191) 0 1px 0;
+}
+
+#jqt ul.plastic li small {
+    color: #3C3C3C;
+    text-shadow: rgb(211,211,211) 0 1px 0;
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+    line-height: 24px;
+}
+
+#jqt ul.plastic.minibanner, #jqt ul.plastic.bigbanner {
+    margin: 10px;
+    border: 0;
+    height: 81px;
+    clear: both;
+}
+
+#jqt ul.plastic.bigbanner {
+    height: 140px !important;
+}
+
+#jqt ul.plastic.minibanner li {
+    border: 1px solid rgb(138,138,138);
+    background-color: rgb(152,152,152);
+    width: 145px;
+    height: 81px;
+    float: left;
+    -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px;
+    padding: 0;
+}
+
+#jqt ul.plastic.bigbanner li {
+    border: 1px solid rgb(138,138,138);
+    background-color: rgb(152,152,152);
+    width: 296px;
+    height: 140px;
+    float: left;
+    -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px;
+    padding: 0;
+    margin-bottom: 4px;
+}
+
+#jqt ul.plastic.minibanner li:first-child {
+    margin-right: 6px;
+}
+
+#jqt ul.plastic.minibanner li a {
+    color: transparent;
+    text-shadow: none;
+    display: block;
+    width: 145px;
+    height: 81px;
+}
+
+#jqt ul.plastic.bigbanner li a {
+    color: transparent;
+    text-shadow: none;
+    display: block;
+    width: 296px;
+    height: 145px;
+}
+
+/* @end */
+
+
+
+/* @group Individual */
+
+#jqt ul.individual {
+    border: 0;
+    background: none;
+    clear: both;
+    overflow: hidden;
+}
+
+#jqt ul.individual li {
+    color: white;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#4c4d4e), to(#404142));
+    border: 1px solid #555;
+    font-size: 14px;
+    text-align: left;
+    -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    width: 48%;
+    float: left;
+    display: block;
+    padding: 11px 10px 14px 10px;
+}
+
+#jqt ul.individual li + li {
+    float: right;
+}
+
+#jqt ul.individual li a {
+    color: white;
+    line-height: 16px;
+    margin: -11px -10px -14px -10px;
+    padding: 11px 10px 14px 10px;
+    -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px;
+}
+
+#jqt ul.individual li:hover {
+    color: white;
+    /* background: #222; */
+}
+#jqt ul.individual li:active {
+    color: white;
+	background-repeat: no-repeat;
+    background-image: none;
+	background-position: 97% center;
+}
+
+/* @end */
+
+
+
+/* @group Misc */
+
+#jqt .info {
+    display: block;
+    position: relative;
+    -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+    width: 100%;
+    background: #dce1eb;
+    font-size: 12px;
+    line-height: 16px;
+    text-align: center;
+    text-shadow: rgba(255,255,255,.8) 0 1px 0;
+    color: rgb(76, 86, 108);
+    padding: 15px;
+    border-top: 1px solid rgba(76, 86, 108, .3);
+    font-weight: bold;
+}
+
+#jqt .caption {
+    postion: relative;
+    font-size: 9pt;
+    line-height: 9pt;
+    text-shadow: rgba(255,255,255,.8) 0 1px 0;
+    color: #444;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
